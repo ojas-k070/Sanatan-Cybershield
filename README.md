@@ -1,7 +1,8 @@
 #  Sanatan Labs – AI Cyber Shield
 
 <p align="center">
-  <img src="assets/logo.png" width="150"/>
+  <img width="337" height="309" alt="image" src="https://github.com/user-attachments/assets/3821c8b9-498a-4126-ad4e-dfcc6b36865c" />
+
 </p>
 
 <h3 align="center">AI-Powered Autonomous Security Vulnerability Detection & Remediation Platform</h3>
