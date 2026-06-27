@@ -1,4 +1,4 @@
-# 🛡️ Sanatan Labs – AI Cyber Shield
+#  Sanatan Labs – AI Cyber Shield
 
 <p align="center">
   <img src="assets/logo.png" width="150"/>
@@ -21,7 +21,7 @@ Detect • Analyze • Remediate • Secure
 
 ---
 
-## 🚀 Project Overview
+##  Project Overview
 
 AI Cyber Shield is an autonomous security intelligence platform that leverages Artificial Intelligence and Large Language Models to perform deep semantic code analysis, identify vulnerabilities, generate secure remediation code, and create interactive security reports.
 
@@ -29,7 +29,7 @@ Unlike traditional static analysis tools that rely on predefined rules and signa
 
 ---
 
-# 📸 Application Preview
+#  Application Preview
 
 ## Landing Page
 <img width="1918" height="946" alt="image" src="https://github.com/user-attachments/assets/52ecd3b4-e727-4106-95da-ed58a8cfeeb2" />
