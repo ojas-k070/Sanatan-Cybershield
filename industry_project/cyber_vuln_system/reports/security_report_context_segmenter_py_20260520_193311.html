@@ -1,0 +1,1048 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Security Audit Report | context_segmenter.py</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg:       #0f1115;
+    --surface:  #181b21;
+    --border:   #272c36;
+    --text:     #e2e8f0;
+    --text-dim: #94a3b8;
+    --accent:   #2563eb;
+    --accent-hover: #1d4ed8;
+    --crit:     #ef4444;
+    --high:     #f97316;
+    --med:      #eab308;
+    --low:      #10b981;
+    --radius:   6px;
+  }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: #3b82f6; text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  pre { white-space: pre-wrap; word-break: break-all; font-family: 'JetBrains Mono', monospace; }
+
+  /* Layout */
+  .page { max-width: 1280px; margin: 0 auto; padding: 40px 24px 80px; }
+
+  /* Header */
+  .header {
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 24px;
+    margin-bottom: 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+  .header h1 { font-size: 1.75rem; font-weight: 700; color: #fff; letter-spacing: -0.02em; margin-bottom: 12px; }
+  .header-badge {
+    background: rgba(59,130,246,0.1);
+    border: 1px solid rgba(59,130,246,0.3);
+    color: #3b82f6;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-left: 12px;
+    vertical-align: middle;
+  }
+  .meta-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px 32px;
+    font-size: 0.85rem;
+    color: var(--text-dim);
+  }
+  .meta-grid span { color: var(--text); font-weight: 500; }
+
+  /* Risk Gauge Container */
+  .risk-overview {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    text-align: right;
+    min-width: 200px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+  }
+  .risk-value {
+    font-size: 3rem;
+    font-weight: 700;
+    line-height: 1;
+    color: #10b981;
+    margin-bottom: 8px;
+  }
+  .risk-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+    color: var(--text-dim);
+  }
+  .risk-level-badge {
+    margin-top: 8px;
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #10b981;
+    border: 1px solid #10b981;
+    background: #10b98115;
+  }
+
+  /* Summary cards */
+  .summary-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(180px,1fr)); gap: 16px; margin-bottom: 32px; }
+  .scard {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .scard::before {
+    content: ''; position: absolute;
+    top: 0; left: 0; bottom: 0; width: 3px;
+  }
+  .scard.critical::before { background: var(--crit); }
+  .scard.high::before    { background: var(--high); }
+  .scard.medium::before  { background: var(--med);  }
+  .scard.low::before     { background: var(--low);  }
+  .scard .count {
+    font-size: 2rem; font-weight: 600; line-height: 1;
+    margin-bottom: 8px;
+    color: var(--text);
+  }
+  .scard .label { font-size: 0.8rem; color: var(--text-dim); font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; }
+
+  /* Sections */
+  .section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 32px;
+  }
+  .section-header {
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-header h2 { font-size: 1rem; font-weight: 600; color: #fff; letter-spacing: 0.01em; }
+  .section-body { padding: 24px; }
+
+  /* Executive summary */
+  .exec-summary {
+    font-size: 0.95rem;
+    color: var(--text);
+    margin-bottom: 16px;
+    line-height: 1.6;
+  }
+  .risk-trend {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--text);
+  }
+
+  /* Priority fixes */
+  .priority-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+  .priority-list li {
+    background: rgba(239,68,68,0.05);
+    border-left: 3px solid var(--crit);
+    padding: 12px 16px;
+    font-size: 0.9rem;
+    color: #f8fafc;
+  }
+
+  /* Bar chart */
+  .bar-chart { display: flex; flex-direction: column; gap: 12px; }
+  .bar-row { display: grid; grid-template-columns: 200px 1fr 40px; align-items: center; gap: 16px; font-size: 0.85rem; font-weight: 500; }
+  .bar-label { color: var(--text-dim); text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .bar-track { background: #0f1115; border: 1px solid var(--border); height: 8px; overflow: hidden; border-radius: 2px; }
+  .bar-fill  { height: 100%; border-radius: 2px; }
+  .bar-val   { color: var(--text); font-size: 0.85rem; }
+
+  /* OWASP badges */
+  .owasp-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+  .owasp-badge {
+    background: #0f1115;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    padding: 4px 12px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    border-radius: 4px;
+  }
+  .owasp-count {
+    background: var(--border);
+    color: var(--text);
+    padding: 0 6px;
+    border-radius: 10px;
+    font-size: 0.75rem;
+    margin-left: 8px;
+    font-weight: 600;
+  }
+
+  /* Vulnerability cards */
+  .vuln-card {
+    background: #0f1115;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 16px;
+  }
+  .vuln-header {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .vuln-header:hover { background: #13161c; }
+  .sev-indicator {
+    width: 8px; height: 8px; border-radius: 50%;
+  }
+  .sev-Critical { background: var(--crit); box-shadow: 0 0 5px var(--crit); }
+  .sev-High     { background: var(--high); box-shadow: 0 0 5px var(--high); }
+  .sev-Medium   { background: var(--med);  box-shadow: 0 0 5px var(--med); }
+  .sev-Low      { background: var(--low);  box-shadow: 0 0 5px var(--low); }
+  
+  .vuln-title   { font-weight: 600; font-size: 0.95rem; color: #fff; }
+  .vuln-meta    { font-size: 0.8rem; color: var(--text-dim); margin-top: 4px; font-family: 'JetBrains Mono', monospace; }
+  .vuln-toggle  { color: var(--text-dim); }
+  details[open] .vuln-toggle { transform: rotate(180deg); color: #fff; }
+
+  .vuln-body { padding: 0 16px 24px; display: grid; gap: 20px; border-top: 1px solid var(--border); margin-top: 16px; padding-top: 24px; }
+  .vuln-section { font-size: 0.9rem; }
+  .vuln-section-title {
+    font-size: 0.75rem; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.05em;
+    color: var(--text-dim); margin-bottom: 8px;
+  }
+  .vuln-section p { color: var(--text); line-height: 1.6; }
+
+  .code-block {
+    background: #090a0c;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow-x: auto;
+    font-size: 0.85rem;
+  }
+  .code-block .highlight { background: transparent !important; padding: 16px; }
+
+  .tag-row { display: flex; flex-wrap: wrap; gap: 8px; }
+  .tag {
+    background: #181b21;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 2px 8px;
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .rec-box {
+    background: rgba(16,185,129,0.05);
+    border-left: 3px solid var(--low);
+    padding: 12px 16px;
+    font-size: 0.9rem;
+    color: var(--text);
+  }
+
+  /* Code tabs */
+  .tabs { display: flex; border-bottom: 1px solid var(--border); background: #0f1115; }
+  .tab-btn {
+    padding: 12px 20px;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--text-dim);
+    font-size: 0.85rem;
+    font-weight: 500;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+  }
+  .tab-btn:hover { color: #fff; }
+  .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .tab-panel { display: none; padding: 0; }
+  .tab-panel.active { display: block; }
+
+  /* Diff colors */
+  .diff-add { background: rgba(16,185,129,0.1); }
+  .diff-del { background: rgba(239,68,68,0.1); }
+
+  /* Footer */
+  .footer {
+    text-align: right;
+    color: var(--text-dim);
+    font-size: 0.8rem;
+    border-top: 1px solid var(--border);
+    padding-top: 24px;
+  }
+
+  /* Pygments overrides */
+  pre { line-height: 125%; }
+td.linenos .normal { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+span.linenos { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+td.linenos .special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+.highlight .hll { background-color: #ffffcc }
+.highlight { background: #282C34; color: #ABB2BF }
+.highlight .c { color: #7F848E } /* Comment */
+.highlight .err { color: #ABB2BF } /* Error */
+.highlight .esc { color: #ABB2BF } /* Escape */
+.highlight .g { color: #ABB2BF } /* Generic */
+.highlight .k { color: #C678DD } /* Keyword */
+.highlight .l { color: #ABB2BF } /* Literal */
+.highlight .n { color: #E06C75 } /* Name */
+.highlight .o { color: #56B6C2 } /* Operator */
+.highlight .x { color: #ABB2BF } /* Other */
+.highlight .p { color: #ABB2BF } /* Punctuation */
+.highlight .ch { color: #7F848E } /* Comment.Hashbang */
+.highlight .cm { color: #7F848E } /* Comment.Multiline */
+.highlight .cp { color: #7F848E } /* Comment.Preproc */
+.highlight .cpf { color: #7F848E } /* Comment.PreprocFile */
+.highlight .c1 { color: #7F848E } /* Comment.Single */
+.highlight .cs { color: #7F848E } /* Comment.Special */
+.highlight .gd { color: #E06C75 } /* Generic.Deleted */
+.highlight .ge { color: #ABB2BF; font-style: italic } /* Generic.Emph */
+.highlight .ges { color: #ABB2BF } /* Generic.EmphStrong */
+.highlight .gr { color: #E06C75 } /* Generic.Error */
+.highlight .gh { color: #ABB2BF; font-weight: bold } /* Generic.Heading */
+.highlight .gi { color: #98C379 } /* Generic.Inserted */
+.highlight .go { color: #E06C75 } /* Generic.Output */
+.highlight .gp { color: #ABB2BF } /* Generic.Prompt */
+.highlight .gs { color: #ABB2BF; font-weight: bold } /* Generic.Strong */
+.highlight .gu { color: #ABB2BF; font-weight: bold } /* Generic.Subheading */
+.highlight .gt { color: #E06C75 } /* Generic.Traceback */
+.highlight .kc { color: #E5C07B } /* Keyword.Constant */
+.highlight .kd { color: #C678DD } /* Keyword.Declaration */
+.highlight .kn { color: #C678DD } /* Keyword.Namespace */
+.highlight .kp { color: #C678DD } /* Keyword.Pseudo */
+.highlight .kr { color: #C678DD } /* Keyword.Reserved */
+.highlight .kt { color: #E5C07B } /* Keyword.Type */
+.highlight .ld { color: #ABB2BF } /* Literal.Date */
+.highlight .m { color: #D19A66 } /* Literal.Number */
+.highlight .s { color: #98C379 } /* Literal.String */
+.highlight .na { color: #E06C75 } /* Name.Attribute */
+.highlight .nb { color: #E5C07B } /* Name.Builtin */
+.highlight .nc { color: #E5C07B } /* Name.Class */
+.highlight .no { color: #E06C75 } /* Name.Constant */
+.highlight .nd { color: #61AFEF } /* Name.Decorator */
+.highlight .ni { color: #E06C75 } /* Name.Entity */
+.highlight .ne { color: #E06C75 } /* Name.Exception */
+.highlight .nf { color: #61AFEF; font-weight: bold } /* Name.Function */
+.highlight .nl { color: #E06C75 } /* Name.Label */
+.highlight .nn { color: #E06C75 } /* Name.Namespace */
+.highlight .nx { color: #E06C75 } /* Name.Other */
+.highlight .py { color: #E06C75 } /* Name.Property */
+.highlight .nt { color: #E06C75 } /* Name.Tag */
+.highlight .nv { color: #E06C75 } /* Name.Variable */
+.highlight .ow { color: #56B6C2 } /* Operator.Word */
+.highlight .pm { color: #ABB2BF } /* Punctuation.Marker */
+.highlight .w { color: #ABB2BF } /* Text.Whitespace */
+.highlight .mb { color: #D19A66 } /* Literal.Number.Bin */
+.highlight .mf { color: #D19A66 } /* Literal.Number.Float */
+.highlight .mh { color: #D19A66 } /* Literal.Number.Hex */
+.highlight .mi { color: #D19A66 } /* Literal.Number.Integer */
+.highlight .mo { color: #D19A66 } /* Literal.Number.Oct */
+.highlight .sa { color: #98C379 } /* Literal.String.Affix */
+.highlight .sb { color: #98C379 } /* Literal.String.Backtick */
+.highlight .sc { color: #98C379 } /* Literal.String.Char */
+.highlight .dl { color: #98C379 } /* Literal.String.Delimiter */
+.highlight .sd { color: #98C379 } /* Literal.String.Doc */
+.highlight .s2 { color: #98C379 } /* Literal.String.Double */
+.highlight .se { color: #98C379 } /* Literal.String.Escape */
+.highlight .sh { color: #98C379 } /* Literal.String.Heredoc */
+.highlight .si { color: #98C379 } /* Literal.String.Interpol */
+.highlight .sx { color: #98C379 } /* Literal.String.Other */
+.highlight .sr { color: #98C379 } /* Literal.String.Regex */
+.highlight .s1 { color: #98C379 } /* Literal.String.Single */
+.highlight .ss { color: #98C379 } /* Literal.String.Symbol */
+.highlight .bp { color: #E5C07B } /* Name.Builtin.Pseudo */
+.highlight .fm { color: #56B6C2; font-weight: bold } /* Name.Function.Magic */
+.highlight .vc { color: #E06C75 } /* Name.Variable.Class */
+.highlight .vg { color: #E06C75 } /* Name.Variable.Global */
+.highlight .vi { color: #E06C75 } /* Name.Variable.Instance */
+.highlight .vm { color: #E06C75 } /* Name.Variable.Magic */
+.highlight .il { color: #D19A66 } /* Literal.Number.Integer.Long */
+  .highlight pre { margin: 0; font-family: 'JetBrains Mono', monospace; line-height: 1.5; }
+  .highlight .lineno { color: #475569; padding-right: 16px; border-right: 1px solid var(--border); margin-right: 16px; display: inline-block; user-select: none; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div>
+      <h1>AI Cyber Shield <span class="header-badge">Enterprise Report</span></h1>
+      <div class="meta-grid">
+        <div>Target: <span>context_segmenter.py</span></div>
+        <div>Language: <span>Python</span></div>
+        <div>Generated: <span>2026-05-20 19:33:11</span></div>
+        <div>Total Findings: <span>0</span></div>
+      </div>
+    </div>
+    <div class="risk-overview">
+      <div class="risk-label">Aggregate Risk Score</div>
+      <div class="risk-value">0</div>
+      <div class="risk-level-badge">Low</div>
+    </div>
+  </div>
+
+  <!-- SEVERITY CARDS -->
+  <div class="summary-grid">
+    <div class="scard critical">
+      <div class="count">0</div>
+      <div class="label">Critical Findings</div>
+    </div>
+    <div class="scard high">
+      <div class="count">0</div>
+      <div class="label">High Findings</div>
+    </div>
+    <div class="scard medium">
+      <div class="count">0</div>
+      <div class="label">Medium Findings</div>
+    </div>
+    <div class="scard low">
+      <div class="count">0</div>
+      <div class="label">Low Findings</div>
+    </div>
+  </div>
+
+  <!-- EXECUTIVE SUMMARY -->
+  <div class="section">
+    <div class="section-header"><h2>Executive Brief</h2></div>
+    <div class="section-body">
+      <div class="exec-summary">The analyzed Python code uses bare 'except: pass' statements in the '_ensure_nltk' function, which can mask unexpected errors and hinder debugging. While no critical vulnerabilities were found, addressing these findings will improve code robustness and maintainability.</div>
+      <div class="risk-trend">🟢 Low Risk — Minor issues detected; best-practice hardening advised</div>
+    </div>
+  </div>
+
+  <!-- PRIORITY FIXES -->
+  <div class="section">
+    <div class="section-header"><h2>Immediate Action Required</h2></div>
+    <div class="section-body">
+      <ul class="priority-list">
+        <li>{'line': 21, 'code': 'except Exception: pass', 'description': "Replace bare 'except: pass' with a more specific exception handler to avoid masking critical errors."}</li><li>{'line': 23, 'code': 'except Exception: pass', 'description': "Replace bare 'except: pass' with a more specific exception handler to avoid masking critical errors."}</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- CHARTS -->
+  <div class="section">
+    <div class="section-header"><h2>Vulnerability Distribution</h2></div>
+    <div class="section-body" style="display: grid; grid-template-columns: 1fr 1fr; gap: 48px;">
+      <div>
+        <h3 style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-dim);margin-bottom:16px;font-weight:600">By Category</h3>
+        
+      </div>
+      <div>
+        <h3 style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-dim);margin-bottom:16px;font-weight:600">OWASP Top 10 Mapping</h3>
+        <div class="owasp-grid"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FINDINGS -->
+  <div class="section">
+    <div class="section-header"><h2>Detailed Findings (0)</h2></div>
+    <div class="section-body"><div style="padding: 24px; text-align: center; color: var(--text-dim);">No vulnerabilities found. The codebase passed the static checks.</div></div>
+  </div>
+
+  <!-- CODE TABS -->
+  <div class="section">
+    <div class="section-header"><h2>Code Remediation Diff</h2></div>
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab(event,'diff')">Unified Diff</button>
+      <button class="tab-btn" onclick="switchTab(event,'secure')">Secure Code</button>
+      <button class="tab-btn" onclick="switchTab(event,'original')">Original Code</button>
+    </div>
+    <div class="section-body" style="padding:0">
+      <div id="diff" class="tab-panel active">
+        <div class="code-block" style="border:none; border-radius:0;"><div class="highlight"><pre><span></span><span class="gd">--- ORIGINAL: D:\lav\industry_project\cyber_vuln_system\sample_code\repo_3f280f\ContextSwitch\context_segmenter.py+++ SECURE:   reports\context_segmenter_secure.py@@ -7,8 +7,8 @@ </span>
+<span class="w"> </span># Path to your local fine-tuned model
+<span class="w"> </span>_DEFAULT_MODEL_DIR = os.path.join(
+<span class="gd">-    os.path.dirname(__file__),</span>
+<span class="gd">-    &quot;content&quot;,</span>
+<span class="gi">+    os.path.dirname(__file__), </span>
+<span class="gi">+    &quot;content&quot;, </span>
+<span class="w"> </span>    &quot;sts_finetuned_miniLM&quot;
+<span class="w"> </span>)
+<span class="w"> </span>
+<span class="gu">@@ -18,9 +18,9 @@ def _ensure_nltk():</span>
+<span class="w"> </span>    &quot;&quot;&quot;Download required NLTK tokenizers.&quot;&quot;&quot;
+<span class="w"> </span>    try: nltk.download(&quot;punkt&quot;, quiet=True)
+<span class="gd">-    except: pass</span>
+<span class="gi">+    except Exception: pass</span>
+<span class="w"> </span>    try: nltk.download(&quot;punkt_tab&quot;, quiet=True)
+<span class="gd">-    except: pass</span>
+<span class="gi">+    except Exception: pass</span>
+<span class="w"> </span>
+<span class="w"> </span>
+<span class="w"> </span>def load_model(model_path=None):
+<span class="gu">@@ -35,7 +35,8 @@ </span>
+<span class="w"> </span>    if not os.path.isdir(model_path):
+<span class="w"> </span>        raise FileNotFoundError(
+<span class="gd">-            f&quot;Model directory does not exist: {model_path}\n&quot;</span>
+<span class="gi">+            f&quot;Model directory does not exist: {model_path}</span>
+<span class="gi">+&quot;</span>
+<span class="w"> </span>            f&quot;Expected model at: {_DEFAULT_MODEL_DIR}&quot;
+<span class="w"> </span>        )
+<span class="w"> </span>
+<span class="gu">@@ -123,4 +124,4 @@         &quot;sentences&quot;: sentences,</span>
+<span class="w"> </span>        &quot;contexts&quot;: results,
+<span class="w"> </span>        &quot;similarity_matrix&quot;: sim_matrix.tolist()
+<span class="gd">-    }</span>
+<span class="gi">+    }</span>
+</pre></div>
+</div>
+      </div>
+      <div id="secure" class="tab-panel">
+        <div class="code-block" style="border:none; border-radius:0;"><div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">  1</span>
+<span class="normal">  2</span>
+<span class="normal">  3</span>
+<span class="normal">  4</span>
+<span class="normal">  5</span>
+<span class="normal">  6</span>
+<span class="normal">  7</span>
+<span class="normal">  8</span>
+<span class="normal">  9</span>
+<span class="normal"> 10</span>
+<span class="normal"> 11</span>
+<span class="normal"> 12</span>
+<span class="normal"> 13</span>
+<span class="normal"> 14</span>
+<span class="normal"> 15</span>
+<span class="normal"> 16</span>
+<span class="normal"> 17</span>
+<span class="normal"> 18</span>
+<span class="normal"> 19</span>
+<span class="normal"> 20</span>
+<span class="normal"> 21</span>
+<span class="normal"> 22</span>
+<span class="normal"> 23</span>
+<span class="normal"> 24</span>
+<span class="normal"> 25</span>
+<span class="normal"> 26</span>
+<span class="normal"> 27</span>
+<span class="normal"> 28</span>
+<span class="normal"> 29</span>
+<span class="normal"> 30</span>
+<span class="normal"> 31</span>
+<span class="normal"> 32</span>
+<span class="normal"> 33</span>
+<span class="normal"> 34</span>
+<span class="normal"> 35</span>
+<span class="normal"> 36</span>
+<span class="normal"> 37</span>
+<span class="normal"> 38</span>
+<span class="normal"> 39</span>
+<span class="normal"> 40</span>
+<span class="normal"> 41</span>
+<span class="normal"> 42</span>
+<span class="normal"> 43</span>
+<span class="normal"> 44</span>
+<span class="normal"> 45</span>
+<span class="normal"> 46</span>
+<span class="normal"> 47</span>
+<span class="normal"> 48</span>
+<span class="normal"> 49</span>
+<span class="normal"> 50</span>
+<span class="normal"> 51</span>
+<span class="normal"> 52</span>
+<span class="normal"> 53</span>
+<span class="normal"> 54</span>
+<span class="normal"> 55</span>
+<span class="normal"> 56</span>
+<span class="normal"> 57</span>
+<span class="normal"> 58</span>
+<span class="normal"> 59</span>
+<span class="normal"> 60</span>
+<span class="normal"> 61</span>
+<span class="normal"> 62</span>
+<span class="normal"> 63</span>
+<span class="normal"> 64</span>
+<span class="normal"> 65</span>
+<span class="normal"> 66</span>
+<span class="normal"> 67</span>
+<span class="normal"> 68</span>
+<span class="normal"> 69</span>
+<span class="normal"> 70</span>
+<span class="normal"> 71</span>
+<span class="normal"> 72</span>
+<span class="normal"> 73</span>
+<span class="normal"> 74</span>
+<span class="normal"> 75</span>
+<span class="normal"> 76</span>
+<span class="normal"> 77</span>
+<span class="normal"> 78</span>
+<span class="normal"> 79</span>
+<span class="normal"> 80</span>
+<span class="normal"> 81</span>
+<span class="normal"> 82</span>
+<span class="normal"> 83</span>
+<span class="normal"> 84</span>
+<span class="normal"> 85</span>
+<span class="normal"> 86</span>
+<span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span></pre></div></td><td class="code"><div><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">nltk</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.metrics.pairwise</span><span class="w"> </span><span class="kn">import</span> <span class="n">cosine_similarity</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sentence_transformers</span><span class="w"> </span><span class="kn">import</span> <span class="n">SentenceTransformer</span>
+
+<span class="c1"># Path to your local fine-tuned model</span>
+<span class="n">_DEFAULT_MODEL_DIR</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> 
+    <span class="s2">&quot;content&quot;</span><span class="p">,</span> 
+    <span class="s2">&quot;sts_finetuned_miniLM&quot;</span>
+<span class="p">)</span>
+
+<span class="n">_MODEL_CACHE</span> <span class="o">=</span> <span class="kc">None</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_ensure_nltk</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Download required NLTK tokenizers.&quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span> <span class="n">nltk</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="s2">&quot;punkt&quot;</span><span class="p">,</span> <span class="n">quiet</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span> <span class="k">pass</span>
+    <span class="k">try</span><span class="p">:</span> <span class="n">nltk</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="s2">&quot;punkt_tab&quot;</span><span class="p">,</span> <span class="n">quiet</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span> <span class="k">pass</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">load_model</span><span class="p">(</span><span class="n">model_path</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Load and cache the fine-tuned sentence transformer.&quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">_MODEL_CACHE</span>
+
+    <span class="k">if</span> <span class="n">model_path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">model_path</span> <span class="o">=</span> <span class="n">_DEFAULT_MODEL_DIR</span>
+
+    <span class="k">if</span> <span class="n">_MODEL_CACHE</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_MODEL_CACHE</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">model_path</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Model directory does not exist: </span><span class="si">{</span><span class="n">model_path</span><span class="si">}</span>
+<span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;Expected model at: </span><span class="si">{</span><span class="n">_DEFAULT_MODEL_DIR</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+    <span class="n">device</span> <span class="o">=</span> <span class="s2">&quot;cuda&quot;</span> <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span> <span class="k">else</span> <span class="s2">&quot;cpu&quot;</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">SentenceTransformer</span><span class="p">(</span><span class="n">model_path</span><span class="p">)</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+    <span class="n">_MODEL_CACHE</span> <span class="o">=</span> <span class="n">model</span>
+    <span class="k">return</span> <span class="n">model</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">group_paragraph_graph_adjacent</span><span class="p">(</span>
+    <span class="n">paragraph</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">global_threshold</span><span class="o">=</span><span class="mf">0.35</span><span class="p">,</span>
+    <span class="n">adjacent_threshold</span><span class="o">=</span><span class="mf">0.15</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Segment a paragraph into context groups using:</span>
+<span class="sd">    - pairwise cosine similarity (global graph edges)</span>
+<span class="sd">    - adjacency similarity (neighbor sentences)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_ensure_nltk</span><span class="p">()</span>
+
+    <span class="n">sentences</span> <span class="o">=</span> <span class="n">nltk</span><span class="o">.</span><span class="n">sent_tokenize</span><span class="p">(</span><span class="n">paragraph</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sentences</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;sentences&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;contexts&quot;</span><span class="p">:</span> <span class="p">[]}</span>
+
+    <span class="k">if</span> <span class="n">model</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">load_model</span><span class="p">()</span>
+
+    <span class="n">embeddings</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">sentences</span><span class="p">,</span> <span class="n">convert_to_numpy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">sim_matrix</span> <span class="o">=</span> <span class="n">cosine_similarity</span><span class="p">(</span><span class="n">embeddings</span><span class="p">)</span>
+
+    <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">sentences</span><span class="p">)</span>
+    <span class="n">adj</span> <span class="o">=</span> <span class="p">[[]</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">)]</span>
+
+    <span class="c1"># Build graph edges</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+            <span class="n">sim</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">sim_matrix</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">])</span>
+            <span class="n">add_edge</span> <span class="o">=</span> <span class="kc">False</span>
+
+            <span class="c1"># Global threshold</span>
+            <span class="k">if</span> <span class="n">sim</span> <span class="o">&gt;=</span> <span class="n">global_threshold</span><span class="p">:</span>
+                <span class="n">add_edge</span> <span class="o">=</span> <span class="kc">True</span>
+
+            <span class="c1"># Adjacent sentences relax threshold</span>
+            <span class="k">elif</span> <span class="nb">abs</span><span class="p">(</span><span class="n">i</span> <span class="o">-</span> <span class="n">j</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">sim</span> <span class="o">&gt;=</span> <span class="n">adjacent_threshold</span><span class="p">:</span>
+                <span class="n">add_edge</span> <span class="o">=</span> <span class="kc">True</span>
+
+            <span class="k">if</span> <span class="n">add_edge</span><span class="p">:</span>
+                <span class="n">adj</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">j</span><span class="p">)</span>
+                <span class="n">adj</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+
+    <span class="c1"># Extract connected components</span>
+    <span class="n">visited</span> <span class="o">=</span> <span class="p">[</span><span class="kc">False</span><span class="p">]</span> <span class="o">*</span> <span class="n">n</span>
+    <span class="n">components</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">visited</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>
+            <span class="n">stack</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">comp</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">visited</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+
+            <span class="k">while</span> <span class="n">stack</span><span class="p">:</span>
+                <span class="n">node</span> <span class="o">=</span> <span class="n">stack</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+                <span class="n">comp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">nxt</span> <span class="ow">in</span> <span class="n">adj</span><span class="p">[</span><span class="n">node</span><span class="p">]:</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">visited</span><span class="p">[</span><span class="n">nxt</span><span class="p">]:</span>
+                        <span class="n">visited</span><span class="p">[</span><span class="n">nxt</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+                        <span class="n">stack</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">nxt</span><span class="p">)</span>
+
+            <span class="n">components</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">comp</span><span class="p">))</span>
+
+    <span class="c1"># Prepare return structure</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">cid</span><span class="p">,</span> <span class="n">comp</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">components</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+            <span class="s2">&quot;context_id&quot;</span><span class="p">:</span> <span class="n">cid</span><span class="p">,</span>
+            <span class="s2">&quot;sentence_indices&quot;</span><span class="p">:</span> <span class="n">comp</span><span class="p">,</span>
+            <span class="s2">&quot;sentences&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">sentences</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">comp</span><span class="p">]</span>
+        <span class="p">})</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;sentences&quot;</span><span class="p">:</span> <span class="n">sentences</span><span class="p">,</span>
+        <span class="s2">&quot;contexts&quot;</span><span class="p">:</span> <span class="n">results</span><span class="p">,</span>
+        <span class="s2">&quot;similarity_matrix&quot;</span><span class="p">:</span> <span class="n">sim_matrix</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+    <span class="p">}</span>
+</pre></div></td></tr></table></div>
+</div>
+      </div>
+      <div id="original" class="tab-panel">
+        <div class="code-block" style="border:none; border-radius:0;"><div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">  1</span>
+<span class="normal">  2</span>
+<span class="normal">  3</span>
+<span class="normal">  4</span>
+<span class="normal">  5</span>
+<span class="normal">  6</span>
+<span class="normal">  7</span>
+<span class="normal">  8</span>
+<span class="normal">  9</span>
+<span class="normal"> 10</span>
+<span class="normal"> 11</span>
+<span class="normal"> 12</span>
+<span class="normal"> 13</span>
+<span class="normal"> 14</span>
+<span class="normal"> 15</span>
+<span class="normal"> 16</span>
+<span class="normal"> 17</span>
+<span class="normal"> 18</span>
+<span class="normal"> 19</span>
+<span class="normal"> 20</span>
+<span class="normal"> 21</span>
+<span class="normal"> 22</span>
+<span class="normal"> 23</span>
+<span class="normal"> 24</span>
+<span class="normal"> 25</span>
+<span class="normal"> 26</span>
+<span class="normal"> 27</span>
+<span class="normal"> 28</span>
+<span class="normal"> 29</span>
+<span class="normal"> 30</span>
+<span class="normal"> 31</span>
+<span class="normal"> 32</span>
+<span class="normal"> 33</span>
+<span class="normal"> 34</span>
+<span class="normal"> 35</span>
+<span class="normal"> 36</span>
+<span class="normal"> 37</span>
+<span class="normal"> 38</span>
+<span class="normal"> 39</span>
+<span class="normal"> 40</span>
+<span class="normal"> 41</span>
+<span class="normal"> 42</span>
+<span class="normal"> 43</span>
+<span class="normal"> 44</span>
+<span class="normal"> 45</span>
+<span class="normal"> 46</span>
+<span class="normal"> 47</span>
+<span class="normal"> 48</span>
+<span class="normal"> 49</span>
+<span class="normal"> 50</span>
+<span class="normal"> 51</span>
+<span class="normal"> 52</span>
+<span class="normal"> 53</span>
+<span class="normal"> 54</span>
+<span class="normal"> 55</span>
+<span class="normal"> 56</span>
+<span class="normal"> 57</span>
+<span class="normal"> 58</span>
+<span class="normal"> 59</span>
+<span class="normal"> 60</span>
+<span class="normal"> 61</span>
+<span class="normal"> 62</span>
+<span class="normal"> 63</span>
+<span class="normal"> 64</span>
+<span class="normal"> 65</span>
+<span class="normal"> 66</span>
+<span class="normal"> 67</span>
+<span class="normal"> 68</span>
+<span class="normal"> 69</span>
+<span class="normal"> 70</span>
+<span class="normal"> 71</span>
+<span class="normal"> 72</span>
+<span class="normal"> 73</span>
+<span class="normal"> 74</span>
+<span class="normal"> 75</span>
+<span class="normal"> 76</span>
+<span class="normal"> 77</span>
+<span class="normal"> 78</span>
+<span class="normal"> 79</span>
+<span class="normal"> 80</span>
+<span class="normal"> 81</span>
+<span class="normal"> 82</span>
+<span class="normal"> 83</span>
+<span class="normal"> 84</span>
+<span class="normal"> 85</span>
+<span class="normal"> 86</span>
+<span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span></pre></div></td><td class="code"><div><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">nltk</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.metrics.pairwise</span><span class="w"> </span><span class="kn">import</span> <span class="n">cosine_similarity</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sentence_transformers</span><span class="w"> </span><span class="kn">import</span> <span class="n">SentenceTransformer</span>
+
+<span class="c1"># Path to your local fine-tuned model</span>
+<span class="n">_DEFAULT_MODEL_DIR</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span>
+    <span class="s2">&quot;content&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;sts_finetuned_miniLM&quot;</span>
+<span class="p">)</span>
+
+<span class="n">_MODEL_CACHE</span> <span class="o">=</span> <span class="kc">None</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_ensure_nltk</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Download required NLTK tokenizers.&quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span> <span class="n">nltk</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="s2">&quot;punkt&quot;</span><span class="p">,</span> <span class="n">quiet</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">except</span><span class="p">:</span> <span class="k">pass</span>
+    <span class="k">try</span><span class="p">:</span> <span class="n">nltk</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="s2">&quot;punkt_tab&quot;</span><span class="p">,</span> <span class="n">quiet</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">except</span><span class="p">:</span> <span class="k">pass</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">load_model</span><span class="p">(</span><span class="n">model_path</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Load and cache the fine-tuned sentence transformer.&quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">_MODEL_CACHE</span>
+
+    <span class="k">if</span> <span class="n">model_path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">model_path</span> <span class="o">=</span> <span class="n">_DEFAULT_MODEL_DIR</span>
+
+    <span class="k">if</span> <span class="n">_MODEL_CACHE</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_MODEL_CACHE</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">model_path</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Model directory does not exist: </span><span class="si">{</span><span class="n">model_path</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;Expected model at: </span><span class="si">{</span><span class="n">_DEFAULT_MODEL_DIR</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+    <span class="n">device</span> <span class="o">=</span> <span class="s2">&quot;cuda&quot;</span> <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span> <span class="k">else</span> <span class="s2">&quot;cpu&quot;</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">SentenceTransformer</span><span class="p">(</span><span class="n">model_path</span><span class="p">)</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+    <span class="n">_MODEL_CACHE</span> <span class="o">=</span> <span class="n">model</span>
+    <span class="k">return</span> <span class="n">model</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">group_paragraph_graph_adjacent</span><span class="p">(</span>
+    <span class="n">paragraph</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">global_threshold</span><span class="o">=</span><span class="mf">0.35</span><span class="p">,</span>
+    <span class="n">adjacent_threshold</span><span class="o">=</span><span class="mf">0.15</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Segment a paragraph into context groups using:</span>
+<span class="sd">    - pairwise cosine similarity (global graph edges)</span>
+<span class="sd">    - adjacency similarity (neighbor sentences)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_ensure_nltk</span><span class="p">()</span>
+
+    <span class="n">sentences</span> <span class="o">=</span> <span class="n">nltk</span><span class="o">.</span><span class="n">sent_tokenize</span><span class="p">(</span><span class="n">paragraph</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sentences</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;sentences&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;contexts&quot;</span><span class="p">:</span> <span class="p">[]}</span>
+
+    <span class="k">if</span> <span class="n">model</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">load_model</span><span class="p">()</span>
+
+    <span class="n">embeddings</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">sentences</span><span class="p">,</span> <span class="n">convert_to_numpy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">sim_matrix</span> <span class="o">=</span> <span class="n">cosine_similarity</span><span class="p">(</span><span class="n">embeddings</span><span class="p">)</span>
+
+    <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">sentences</span><span class="p">)</span>
+    <span class="n">adj</span> <span class="o">=</span> <span class="p">[[]</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">)]</span>
+
+    <span class="c1"># Build graph edges</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+            <span class="n">sim</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">sim_matrix</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">])</span>
+            <span class="n">add_edge</span> <span class="o">=</span> <span class="kc">False</span>
+
+            <span class="c1"># Global threshold</span>
+            <span class="k">if</span> <span class="n">sim</span> <span class="o">&gt;=</span> <span class="n">global_threshold</span><span class="p">:</span>
+                <span class="n">add_edge</span> <span class="o">=</span> <span class="kc">True</span>
+
+            <span class="c1"># Adjacent sentences relax threshold</span>
+            <span class="k">elif</span> <span class="nb">abs</span><span class="p">(</span><span class="n">i</span> <span class="o">-</span> <span class="n">j</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">sim</span> <span class="o">&gt;=</span> <span class="n">adjacent_threshold</span><span class="p">:</span>
+                <span class="n">add_edge</span> <span class="o">=</span> <span class="kc">True</span>
+
+            <span class="k">if</span> <span class="n">add_edge</span><span class="p">:</span>
+                <span class="n">adj</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">j</span><span class="p">)</span>
+                <span class="n">adj</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+
+    <span class="c1"># Extract connected components</span>
+    <span class="n">visited</span> <span class="o">=</span> <span class="p">[</span><span class="kc">False</span><span class="p">]</span> <span class="o">*</span> <span class="n">n</span>
+    <span class="n">components</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">visited</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>
+            <span class="n">stack</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">comp</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">visited</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+
+            <span class="k">while</span> <span class="n">stack</span><span class="p">:</span>
+                <span class="n">node</span> <span class="o">=</span> <span class="n">stack</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+                <span class="n">comp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">nxt</span> <span class="ow">in</span> <span class="n">adj</span><span class="p">[</span><span class="n">node</span><span class="p">]:</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">visited</span><span class="p">[</span><span class="n">nxt</span><span class="p">]:</span>
+                        <span class="n">visited</span><span class="p">[</span><span class="n">nxt</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+                        <span class="n">stack</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">nxt</span><span class="p">)</span>
+
+            <span class="n">components</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">comp</span><span class="p">))</span>
+
+    <span class="c1"># Prepare return structure</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">cid</span><span class="p">,</span> <span class="n">comp</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">components</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+            <span class="s2">&quot;context_id&quot;</span><span class="p">:</span> <span class="n">cid</span><span class="p">,</span>
+            <span class="s2">&quot;sentence_indices&quot;</span><span class="p">:</span> <span class="n">comp</span><span class="p">,</span>
+            <span class="s2">&quot;sentences&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">sentences</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">comp</span><span class="p">]</span>
+        <span class="p">})</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;sentences&quot;</span><span class="p">:</span> <span class="n">sentences</span><span class="p">,</span>
+        <span class="s2">&quot;contexts&quot;</span><span class="p">:</span> <span class="n">results</span><span class="p">,</span>
+        <span class="s2">&quot;similarity_matrix&quot;</span><span class="p">:</span> <span class="n">sim_matrix</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+    <span class="p">}</span>
+</pre></div></td></tr></table></div>
+</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div>AI Cyber Shield &bull; Security Audit Report</div>
+  </div>
+</div>
+
+<script>
+function switchTab(e, id) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  e.target.classList.add('active');
+  document.getElementById(id).classList.add('active');
+}
+</script>
+</body>
+</html>

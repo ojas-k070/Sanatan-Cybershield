@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Security Audit Report | up_2acee6_up_120a55_Assignmnet 11.cpp</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg:       #0f1115;
+    --surface:  #181b21;
+    --border:   #272c36;
+    --text:     #e2e8f0;
+    --text-dim: #94a3b8;
+    --accent:   #2563eb;
+    --accent-hover: #1d4ed8;
+    --crit:     #ef4444;
+    --high:     #f97316;
+    --med:      #eab308;
+    --low:      #10b981;
+    --radius:   6px;
+  }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: #3b82f6; text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  pre { white-space: pre-wrap; word-break: break-all; font-family: 'JetBrains Mono', monospace; }
+
+  /* Layout */
+  .page { max-width: 1280px; margin: 0 auto; padding: 40px 24px 80px; }
+
+  /* Header */
+  .header {
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 24px;
+    margin-bottom: 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+  .header h1 { font-size: 1.75rem; font-weight: 700; color: #fff; letter-spacing: -0.02em; margin-bottom: 12px; }
+  .header-badge {
+    background: rgba(59,130,246,0.1);
+    border: 1px solid rgba(59,130,246,0.3);
+    color: #3b82f6;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-left: 12px;
+    vertical-align: middle;
+  }
+  .meta-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px 32px;
+    font-size: 0.85rem;
+    color: var(--text-dim);
+  }
+  .meta-grid span { color: var(--text); font-weight: 500; }
+
+  /* Risk Gauge Container */
+  .risk-overview {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    text-align: right;
+    min-width: 200px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+  }
+  .risk-value {
+    font-size: 3rem;
+    font-weight: 700;
+    line-height: 1;
+    color: #10b981;
+    margin-bottom: 8px;
+  }
+  .risk-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+    color: var(--text-dim);
+  }
+  .risk-level-badge {
+    margin-top: 8px;
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #10b981;
+    border: 1px solid #10b981;
+    background: #10b98115;
+  }
+
+  /* Summary cards */
+  .summary-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(180px,1fr)); gap: 16px; margin-bottom: 32px; }
+  .scard {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .scard::before {
+    content: ''; position: absolute;
+    top: 0; left: 0; bottom: 0; width: 3px;
+  }
+  .scard.critical::before { background: var(--crit); }
+  .scard.high::before    { background: var(--high); }
+  .scard.medium::before  { background: var(--med);  }
+  .scard.low::before     { background: var(--low);  }
+  .scard .count {
+    font-size: 2rem; font-weight: 600; line-height: 1;
+    margin-bottom: 8px;
+    color: var(--text);
+  }
+  .scard .label { font-size: 0.8rem; color: var(--text-dim); font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; }
+
+  /* Sections */
+  .section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 32px;
+  }
+  .section-header {
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-header h2 { font-size: 1rem; font-weight: 600; color: #fff; letter-spacing: 0.01em; }
+  .section-body { padding: 24px; }
+
+  /* Executive summary */
+  .exec-summary {
+    font-size: 0.95rem;
+    color: var(--text);
+    margin-bottom: 16px;
+    line-height: 1.6;
+  }
+  .risk-trend {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--text);
+  }
+
+  /* Priority fixes */
+  .priority-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+  .priority-list li {
+    background: rgba(239,68,68,0.05);
+    border-left: 3px solid var(--crit);
+    padding: 12px 16px;
+    font-size: 0.9rem;
+    color: #f8fafc;
+  }
+
+  /* Bar chart */
+  .bar-chart { display: flex; flex-direction: column; gap: 12px; }
+  .bar-row { display: grid; grid-template-columns: 200px 1fr 40px; align-items: center; gap: 16px; font-size: 0.85rem; font-weight: 500; }
+  .bar-label { color: var(--text-dim); text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .bar-track { background: #0f1115; border: 1px solid var(--border); height: 8px; overflow: hidden; border-radius: 2px; }
+  .bar-fill  { height: 100%; border-radius: 2px; }
+  .bar-val   { color: var(--text); font-size: 0.85rem; }
+
+  /* OWASP badges */
+  .owasp-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+  .owasp-badge {
+    background: #0f1115;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    padding: 4px 12px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    border-radius: 4px;
+  }
+  .owasp-count {
+    background: var(--border);
+    color: var(--text);
+    padding: 0 6px;
+    border-radius: 10px;
+    font-size: 0.75rem;
+    margin-left: 8px;
+    font-weight: 600;
+  }
+
+  /* Vulnerability cards */
+  .vuln-card {
+    background: #0f1115;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 16px;
+  }
+  .vuln-header {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .vuln-header:hover { background: #13161c; }
+  .sev-indicator {
+    width: 8px; height: 8px; border-radius: 50%;
+  }
+  .sev-Critical { background: var(--crit); box-shadow: 0 0 5px var(--crit); }
+  .sev-High     { background: var(--high); box-shadow: 0 0 5px var(--high); }
+  .sev-Medium   { background: var(--med);  box-shadow: 0 0 5px var(--med); }
+  .sev-Low      { background: var(--low);  box-shadow: 0 0 5px var(--low); }
+  
+  .vuln-title   { font-weight: 600; font-size: 0.95rem; color: #fff; }
+  .vuln-meta    { font-size: 0.8rem; color: var(--text-dim); margin-top: 4px; font-family: 'JetBrains Mono', monospace; }
+  .vuln-toggle  { color: var(--text-dim); }
+  details[open] .vuln-toggle { transform: rotate(180deg); color: #fff; }
+
+  .vuln-body { padding: 0 16px 24px; display: grid; gap: 20px; border-top: 1px solid var(--border); margin-top: 16px; padding-top: 24px; }
+  .vuln-section { font-size: 0.9rem; }
+  .vuln-section-title {
+    font-size: 0.75rem; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.05em;
+    color: var(--text-dim); margin-bottom: 8px;
+  }
+  .vuln-section p { color: var(--text); line-height: 1.6; }
+
+  .code-block {
+    background: #090a0c;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow-x: auto;
+    font-size: 0.85rem;
+  }
+  .code-block .highlight { background: transparent !important; padding: 16px; }
+
+  .tag-row { display: flex; flex-wrap: wrap; gap: 8px; }
+  .tag {
+    background: #181b21;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 2px 8px;
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .rec-box {
+    background: rgba(16,185,129,0.05);
+    border-left: 3px solid var(--low);
+    padding: 12px 16px;
+    font-size: 0.9rem;
+    color: var(--text);
+  }
+
+  /* Code tabs */
+  .tabs { display: flex; border-bottom: 1px solid var(--border); background: #0f1115; }
+  .tab-btn {
+    padding: 12px 20px;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--text-dim);
+    font-size: 0.85rem;
+    font-weight: 500;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+  }
+  .tab-btn:hover { color: #fff; }
+  .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .tab-panel { display: none; padding: 0; }
+  .tab-panel.active { display: block; }
+
+  /* Diff colors */
+  .diff-add { background: rgba(16,185,129,0.1); }
+  .diff-del { background: rgba(239,68,68,0.1); }
+
+  /* Footer */
+  .footer {
+    text-align: right;
+    color: var(--text-dim);
+    font-size: 0.8rem;
+    border-top: 1px solid var(--border);
+    padding-top: 24px;
+  }
+
+  /* Pygments overrides */
+  pre { line-height: 125%; }
+td.linenos .normal { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+span.linenos { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+td.linenos .special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+.highlight .hll { background-color: #ffffcc }
+.highlight { background: #282C34; color: #ABB2BF }
+.highlight .c { color: #7F848E } /* Comment */
+.highlight .err { color: #ABB2BF } /* Error */
+.highlight .esc { color: #ABB2BF } /* Escape */
+.highlight .g { color: #ABB2BF } /* Generic */
+.highlight .k { color: #C678DD } /* Keyword */
+.highlight .l { color: #ABB2BF } /* Literal */
+.highlight .n { color: #E06C75 } /* Name */
+.highlight .o { color: #56B6C2 } /* Operator */
+.highlight .x { color: #ABB2BF } /* Other */
+.highlight .p { color: #ABB2BF } /* Punctuation */
+.highlight .ch { color: #7F848E } /* Comment.Hashbang */
+.highlight .cm { color: #7F848E } /* Comment.Multiline */
+.highlight .cp { color: #7F848E } /* Comment.Preproc */
+.highlight .cpf { color: #7F848E } /* Comment.PreprocFile */
+.highlight .c1 { color: #7F848E } /* Comment.Single */
+.highlight .cs { color: #7F848E } /* Comment.Special */
+.highlight .gd { color: #E06C75 } /* Generic.Deleted */
+.highlight .ge { color: #ABB2BF; font-style: italic } /* Generic.Emph */
+.highlight .ges { color: #ABB2BF } /* Generic.EmphStrong */
+.highlight .gr { color: #E06C75 } /* Generic.Error */
+.highlight .gh { color: #ABB2BF; font-weight: bold } /* Generic.Heading */
+.highlight .gi { color: #98C379 } /* Generic.Inserted */
+.highlight .go { color: #E06C75 } /* Generic.Output */
+.highlight .gp { color: #ABB2BF } /* Generic.Prompt */
+.highlight .gs { color: #ABB2BF; font-weight: bold } /* Generic.Strong */
+.highlight .gu { color: #ABB2BF; font-weight: bold } /* Generic.Subheading */
+.highlight .gt { color: #E06C75 } /* Generic.Traceback */
+.highlight .kc { color: #E5C07B } /* Keyword.Constant */
+.highlight .kd { color: #C678DD } /* Keyword.Declaration */
+.highlight .kn { color: #C678DD } /* Keyword.Namespace */
+.highlight .kp { color: #C678DD } /* Keyword.Pseudo */
+.highlight .kr { color: #C678DD } /* Keyword.Reserved */
+.highlight .kt { color: #E5C07B } /* Keyword.Type */
+.highlight .ld { color: #ABB2BF } /* Literal.Date */
+.highlight .m { color: #D19A66 } /* Literal.Number */
+.highlight .s { color: #98C379 } /* Literal.String */
+.highlight .na { color: #E06C75 } /* Name.Attribute */
+.highlight .nb { color: #E5C07B } /* Name.Builtin */
+.highlight .nc { color: #E5C07B } /* Name.Class */
+.highlight .no { color: #E06C75 } /* Name.Constant */
+.highlight .nd { color: #61AFEF } /* Name.Decorator */
+.highlight .ni { color: #E06C75 } /* Name.Entity */
+.highlight .ne { color: #E06C75 } /* Name.Exception */
+.highlight .nf { color: #61AFEF; font-weight: bold } /* Name.Function */
+.highlight .nl { color: #E06C75 } /* Name.Label */
+.highlight .nn { color: #E06C75 } /* Name.Namespace */
+.highlight .nx { color: #E06C75 } /* Name.Other */
+.highlight .py { color: #E06C75 } /* Name.Property */
+.highlight .nt { color: #E06C75 } /* Name.Tag */
+.highlight .nv { color: #E06C75 } /* Name.Variable */
+.highlight .ow { color: #56B6C2 } /* Operator.Word */
+.highlight .pm { color: #ABB2BF } /* Punctuation.Marker */
+.highlight .w { color: #ABB2BF } /* Text.Whitespace */
+.highlight .mb { color: #D19A66 } /* Literal.Number.Bin */
+.highlight .mf { color: #D19A66 } /* Literal.Number.Float */
+.highlight .mh { color: #D19A66 } /* Literal.Number.Hex */
+.highlight .mi { color: #D19A66 } /* Literal.Number.Integer */
+.highlight .mo { color: #D19A66 } /* Literal.Number.Oct */
+.highlight .sa { color: #98C379 } /* Literal.String.Affix */
+.highlight .sb { color: #98C379 } /* Literal.String.Backtick */
+.highlight .sc { color: #98C379 } /* Literal.String.Char */
+.highlight .dl { color: #98C379 } /* Literal.String.Delimiter */
+.highlight .sd { color: #98C379 } /* Literal.String.Doc */
+.highlight .s2 { color: #98C379 } /* Literal.String.Double */
+.highlight .se { color: #98C379 } /* Literal.String.Escape */
+.highlight .sh { color: #98C379 } /* Literal.String.Heredoc */
+.highlight .si { color: #98C379 } /* Literal.String.Interpol */
+.highlight .sx { color: #98C379 } /* Literal.String.Other */
+.highlight .sr { color: #98C379 } /* Literal.String.Regex */
+.highlight .s1 { color: #98C379 } /* Literal.String.Single */
+.highlight .ss { color: #98C379 } /* Literal.String.Symbol */
+.highlight .bp { color: #E5C07B } /* Name.Builtin.Pseudo */
+.highlight .fm { color: #56B6C2; font-weight: bold } /* Name.Function.Magic */
+.highlight .vc { color: #E06C75 } /* Name.Variable.Class */
+.highlight .vg { color: #E06C75 } /* Name.Variable.Global */
+.highlight .vi { color: #E06C75 } /* Name.Variable.Instance */
+.highlight .vm { color: #E06C75 } /* Name.Variable.Magic */
+.highlight .il { color: #D19A66 } /* Literal.Number.Integer.Long */
+  .highlight pre { margin: 0; font-family: 'JetBrains Mono', monospace; line-height: 1.5; }
+  .highlight .lineno { color: #475569; padding-right: 16px; border-right: 1px solid var(--border); margin-right: 16px; display: inline-block; user-select: none; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div>
+      <h1>AI Cyber Shield <span class="header-badge">Enterprise Report</span></h1>
+      <div class="meta-grid">
+        <div>Target: <span>up_2acee6_up_120a55_Assignmnet 11.cpp</span></div>
+        <div>Language: <span>Cpp</span></div>
+        <div>Generated: <span>2026-06-23 19:03:08</span></div>
+        <div>Total Findings: <span>0</span></div>
+      </div>
+    </div>
+    <div class="risk-overview">
+      <div class="risk-label">Aggregate Risk Score</div>
+      <div class="risk-value">0</div>
+      <div class="risk-level-badge">Low</div>
+    </div>
+  </div>
+
+  <!-- SEVERITY CARDS -->
+  <div class="summary-grid">
+    <div class="scard critical">
+      <div class="count">0</div>
+      <div class="label">Critical Findings</div>
+    </div>
+    <div class="scard high">
+      <div class="count">0</div>
+      <div class="label">High Findings</div>
+    </div>
+    <div class="scard medium">
+      <div class="count">0</div>
+      <div class="label">Medium Findings</div>
+    </div>
+    <div class="scard low">
+      <div class="count">0</div>
+      <div class="label">Low Findings</div>
+    </div>
+  </div>
+
+  <!-- EXECUTIVE SUMMARY -->
+  <div class="section">
+    <div class="section-header"><h2>Executive Brief</h2></div>
+    <div class="section-body">
+      <div class="exec-summary">The C++ code implements a greedy algorithm for the fractional knapsack problem. It calculates value-to-weight ratios, sorts items based on these ratios in descending order, and then fills the knapsack. The primary security concern identified is the use of Variable Length Arrays (VLAs), which can lead to stack overflows if the input `n` is excessively large. While not directly exploitable in this specific implementation, the potential for format string vulnerabilities exists if user input were to be used with `printf`-like functions in future modifications.</div>
+      <div class="risk-trend">🟢 Low Risk — Minor issues detected; best-practice hardening advised</div>
+    </div>
+  </div>
+
+  <!-- PRIORITY FIXES -->
+  <div class="section">
+    <div class="section-header"><h2>Immediate Action Required</h2></div>
+    <div class="section-body">
+      <ul class="priority-list">
+        <li>{'id': 'CWE-770', 'name': 'Allocation of Resource Without Limits or Throttling', 'description': 'Replace Variable Length Arrays with dynamically allocated memory using `std::vector` to avoid potential stack overflows and improve portability.', 'recommendation': 'Replace Variable Length Arrays with `std::vector` for dynamic memory allocation.', 'line_number': '10, 11, 12'}</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- CHARTS -->
+  <div class="section">
+    <div class="section-header"><h2>Vulnerability Distribution</h2></div>
+    <div class="section-body" style="display: grid; grid-template-columns: 1fr 1fr; gap: 48px;">
+      <div>
+        <h3 style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-dim);margin-bottom:16px;font-weight:600">By Category</h3>
+        
+      </div>
+      <div>
+        <h3 style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-dim);margin-bottom:16px;font-weight:600">OWASP Top 10 Mapping</h3>
+        <div class="owasp-grid"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FINDINGS -->
+  <div class="section">
+    <div class="section-header"><h2>Detailed Findings (0)</h2></div>
+    <div class="section-body"><div style="padding: 24px; text-align: center; color: var(--text-dim);">No vulnerabilities found. The codebase passed the static checks.</div></div>
+  </div>
+
+  <!-- CODE TABS -->
+  <div class="section">
+    <div class="section-header"><h2>Code Remediation Diff</h2></div>
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab(event,'diff')">Unified Diff</button>
+      <button class="tab-btn" onclick="switchTab(event,'secure')">Secure Code</button>
+      <button class="tab-btn" onclick="switchTab(event,'original')">Original Code</button>
+    </div>
+    <div class="section-body" style="padding:0">
+      <div id="diff" class="tab-panel active">
+        <div class="code-block" style="border:none; border-radius:0;"><div class="highlight"><pre><span></span><span class="gd">--- ORIGINAL: sample_code\up_2acee6_up_120a55_Assignmnet 11.cpp+++ SECURE:   E:\Codebase Vul analysis\industry_project\cyber_vuln_system\reports\up_2acee6_up_120a55_Assignmnet 11_secure.cpp@@ -1,71 +1,70 @@ #include &lt;iostream&gt;</span>
+<span class="gd">-using namespace std;</span>
+<span class="gi">+#include &lt;vector&gt;</span>
+<span class="gi">+#include &lt;algorithm&gt;</span>
+<span class="gi">+</span>
+<span class="gi">+struct Item {</span>
+<span class="gi">+    int value;</span>
+<span class="gi">+    int weight;</span>
+<span class="gi">+    double ratio;</span>
+<span class="gi">+};</span>
+<span class="gi">+</span>
+<span class="gi">+bool compareItems(const Item&amp; a, const Item&amp; b) {</span>
+<span class="gi">+    return a.ratio &gt; b.ratio;</span>
+<span class="gi">+}</span>
+<span class="w"> </span>
+<span class="w"> </span>int main() {
+<span class="gd">-    int n, W;</span>
+<span class="gi">+    int n;</span>
+<span class="gi">+    double W;</span>
+<span class="w"> </span>
+<span class="gd">-    cout &lt;&lt; &quot;Enter number of items: &quot;;</span>
+<span class="gd">-    cin &gt;&gt; n;</span>
+<span class="gi">+    std::cout &lt;&lt; &quot;Enter number of items: &quot;;</span>
+<span class="gi">+    std::cin &gt;&gt; n;</span>
+<span class="w"> </span>
+<span class="gd">-    int value[n], weight[n];</span>
+<span class="gd">-    double ratio[n];</span>
+<span class="gi">+    std::vector&lt;Item&gt; items(n);</span>
+<span class="w"> </span>
+<span class="gd">-    cout &lt;&lt; &quot;\nEnter value and weight of each item:\n&quot;;</span>
+<span class="gd">-    for (int i = 0; i &lt; n; i++) {</span>
+<span class="gd">-        cout &lt;&lt; &quot;Item &quot; &lt;&lt; i + 1 &lt;&lt; &quot; value: &quot;;</span>
+<span class="gd">-        cin &gt;&gt; value[i];</span>
+<span class="gd">-        cout &lt;&lt; &quot;Item &quot; &lt;&lt; i + 1 &lt;&lt; &quot; weight: &quot;;</span>
+<span class="gd">-        cin &gt;&gt; weight[i];</span>
+<span class="gd">-    }</span>
+<span class="gd">-</span>
+<span class="gd">-    cout &lt;&lt; &quot;\nEnter knapsack capacity: &quot;;</span>
+<span class="gd">-    cin &gt;&gt; W;</span>
+<span class="gd">-</span>
+<span class="gd">-    for (int i = 0; i &lt; n; i++) {</span>
+<span class="gd">-        ratio[i] = (double)value[i] / weight[i];</span>
+<span class="gd">-    }</span>
+<span class="gd">-</span>
+<span class="gd">-    cout &lt;&lt; &quot;\nValue/Weight Ratios:\n&quot;;</span>
+<span class="gd">-    for (int i = 0; i &lt; n; i++) {</span>
+<span class="gd">-        cout &lt;&lt; &quot;Item &quot; &lt;&lt; i + 1 &lt;&lt; &quot;: &quot; &lt;&lt; ratio[i] &lt;&lt; endl;</span>
+<span class="gd">-    }</span>
+<span class="gd">-</span>
+<span class="gd">-    for (int i = 0; i &lt; n - 1; i++) {</span>
+<span class="gd">-        for (int j = 0; j &lt; n - i - 1; j++) {</span>
+<span class="gd">-            if (ratio[j] &lt; ratio[j + 1]) {</span>
+<span class="gd">-</span>
+<span class="gd">-                swap(ratio[j], ratio[j + 1]);</span>
+<span class="gd">-</span>
+<span class="gd">-                swap(value[j], value[j + 1]);</span>
+<span class="gd">-</span>
+<span class="gd">-                swap(weight[j], weight[j + 1]);</span>
+<span class="gd">-            }</span>
+<span class="gi">+    std::cout &lt;&lt; &quot;\nEnter value and weight of each item:\n&quot;;</span>
+<span class="gi">+    for (int i = 0; i &lt; n; ++i) {</span>
+<span class="gi">+        std::cout &lt;&lt; &quot;Item &quot; &lt;&lt; i + 1 &lt;&lt; &quot; value: &quot;;</span>
+<span class="gi">+        std::cin &gt;&gt; items[i].value;</span>
+<span class="gi">+        std::cout &lt;&lt; &quot;Item &quot; &lt;&lt; i + 1 &lt;&lt; &quot; weight: &quot;;</span>
+<span class="gi">+        std::cin &gt;&gt; items[i].weight;</span>
+<span class="gi">+        if (items[i].weight &gt; 0) {</span>
+<span class="gi">+            items[i].ratio = static_cast&lt;double&gt;(items[i].value) / items[i].weight;</span>
+<span class="gi">+        } else {</span>
+<span class="gi">+            items[i].ratio = 0.0; // Handle division by zero, though weight should ideally be positive</span>
+<span class="w"> </span>        }
+<span class="w"> </span>    }
+<span class="w"> </span>
+<span class="gd">-    cout &lt;&lt; &quot;\nAfter sorting :\n&quot;;</span>
+<span class="gd">-    for (int i = 0; i &lt; n; i++) {</span>
+<span class="gd">-        cout &lt;&lt; &quot;Value: &quot; &lt;&lt; value[i]</span>
+<span class="gd">-             &lt;&lt; &quot;, Weight: &quot; &lt;&lt; weight[i]</span>
+<span class="gd">-             &lt;&lt; &quot;, Ratio: &quot; &lt;&lt; ratio[i] &lt;&lt; endl;</span>
+<span class="gi">+    std::cout &lt;&lt; &quot;\nEnter knapsack capacity: &quot;;</span>
+<span class="gi">+    std::cin &gt;&gt; W;</span>
+<span class="gi">+</span>
+<span class="gi">+    std::sort(items.begin(), items.end(), compareItems);</span>
+<span class="gi">+</span>
+<span class="gi">+    std::cout &lt;&lt; &quot;\nAfter sorting :\n&quot;;</span>
+<span class="gi">+    for (int i = 0; i &lt; n; ++i) {</span>
+<span class="gi">+        std::cout &lt;&lt; &quot;Value: &quot; &lt;&lt; items[i].value</span>
+<span class="gi">+                  &lt;&lt; &quot;, Weight: &quot; &lt;&lt; items[i].weight</span>
+<span class="gi">+                  &lt;&lt; &quot;, Ratio: &quot; &lt;&lt; items[i].ratio &lt;&lt; std::endl;</span>
+<span class="w"> </span>    }
+<span class="w"> </span>
+<span class="w"> </span>    double totalValue = 0.0;
+<span class="w"> </span>
+<span class="gd">-    for (int i = 0; i &lt; n; i++) {</span>
+<span class="gd">-        if (W &gt;= weight[i]) {</span>
+<span class="gd">-            cout &lt;&lt; &quot;\nTaking full item (Value: &quot; &lt;&lt; value[i] &lt;&lt; &quot;)&quot;;</span>
+<span class="gd">-            totalValue += value[i];</span>
+<span class="gd">-            W -= weight[i];</span>
+<span class="gi">+    for (int i = 0; i &lt; n; ++i) {</span>
+<span class="gi">+        if (W &lt;= 0) break; // Knapsack is full</span>
+<span class="gi">+</span>
+<span class="gi">+        if (items[i].weight &lt;= W) {</span>
+<span class="gi">+            std::cout &lt;&lt; &quot;\nTaking full item (Value: &quot; &lt;&lt; items[i].value &lt;&lt; &quot;)&quot;;</span>
+<span class="gi">+            totalValue += items[i].value;</span>
+<span class="gi">+            W -= items[i].weight;</span>
+<span class="w"> </span>        } else {
+<span class="gd">-            double fraction = (double)W / weight[i];</span>
+<span class="gd">-            cout &lt;&lt; &quot;\nTaking &quot; &lt;&lt; fraction * 100 &lt;&lt; &quot;% of item (Value: &quot; &lt;&lt; value[i] &lt;&lt; &quot;)&quot;;</span>
+<span class="gd">-            totalValue += value[i] * fraction;</span>
+<span class="gi">+            double fraction = W / static_cast&lt;double&gt;(items[i].weight);</span>
+<span class="gi">+            std::cout &lt;&lt; &quot;\nTaking &quot; &lt;&lt; fraction * 100 &lt;&lt; &quot;% of item (Value: &quot; &lt;&lt; items[i].value &lt;&lt; &quot;)&quot;;</span>
+<span class="gi">+            totalValue += items[i].value * fraction;</span>
+<span class="gi">+            W = 0; // Knapsack is now full</span>
+<span class="w"> </span>            break;
+<span class="w"> </span>        }
+<span class="w"> </span>    }
+<span class="w"> </span>
+<span class="gd">-    cout &lt;&lt; &quot;\n\nMaximum value = &quot; &lt;&lt; totalValue &lt;&lt; endl;</span>
+<span class="gi">+    std::cout &lt;&lt; &quot;\n\nMaximum value = &quot; &lt;&lt; totalValue &lt;&lt; std::endl;</span>
+<span class="w"> </span>
+<span class="w"> </span>    return 0;
+<span class="w"> </span>}
+</pre></div>
+</div>
+      </div>
+      <div id="secure" class="tab-panel">
+        <div class="code-block" style="border:none; border-radius:0;"><div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span>
+<span class="normal">33</span>
+<span class="normal">34</span>
+<span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span>
+<span class="normal">40</span>
+<span class="normal">41</span>
+<span class="normal">42</span>
+<span class="normal">43</span>
+<span class="normal">44</span>
+<span class="normal">45</span>
+<span class="normal">46</span>
+<span class="normal">47</span>
+<span class="normal">48</span>
+<span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span>
+<span class="normal">53</span>
+<span class="normal">54</span>
+<span class="normal">55</span>
+<span class="normal">56</span>
+<span class="normal">57</span>
+<span class="normal">58</span>
+<span class="normal">59</span>
+<span class="normal">60</span>
+<span class="normal">61</span>
+<span class="normal">62</span>
+<span class="normal">63</span>
+<span class="normal">64</span>
+<span class="normal">65</span>
+<span class="normal">66</span>
+<span class="normal">67</span>
+<span class="normal">68</span>
+<span class="normal">69</span>
+<span class="normal">70</span></pre></div></td><td class="code"><div><pre><span></span>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;algorithm&gt;
+
+struct Item {
+    int value;
+    int weight;
+    double ratio;
+};
+
+bool compareItems(const Item&amp; a, const Item&amp; b) {
+    return a.ratio &gt; b.ratio;
+}
+
+int main() {
+    int n;
+    double W;
+
+    std::cout &lt;&lt; &quot;Enter number of items: &quot;;
+    std::cin &gt;&gt; n;
+
+    std::vector&lt;Item&gt; items(n);
+
+    std::cout &lt;&lt; &quot;\nEnter value and weight of each item:\n&quot;;
+    for (int i = 0; i &lt; n; ++i) {
+        std::cout &lt;&lt; &quot;Item &quot; &lt;&lt; i + 1 &lt;&lt; &quot; value: &quot;;
+        std::cin &gt;&gt; items[i].value;
+        std::cout &lt;&lt; &quot;Item &quot; &lt;&lt; i + 1 &lt;&lt; &quot; weight: &quot;;
+        std::cin &gt;&gt; items[i].weight;
+        if (items[i].weight &gt; 0) {
+            items[i].ratio = static_cast&lt;double&gt;(items[i].value) / items[i].weight;
+        } else {
+            items[i].ratio = 0.0; // Handle division by zero, though weight should ideally be positive
+        }
+    }
+
+    std::cout &lt;&lt; &quot;\nEnter knapsack capacity: &quot;;
+    std::cin &gt;&gt; W;
+
+    std::sort(items.begin(), items.end(), compareItems);
+
+    std::cout &lt;&lt; &quot;\nAfter sorting :\n&quot;;
+    for (int i = 0; i &lt; n; ++i) {
+        std::cout &lt;&lt; &quot;Value: &quot; &lt;&lt; items[i].value
+                  &lt;&lt; &quot;, Weight: &quot; &lt;&lt; items[i].weight
+                  &lt;&lt; &quot;, Ratio: &quot; &lt;&lt; items[i].ratio &lt;&lt; std::endl;
+    }
+
+    double totalValue = 0.0;
+
+    for (int i = 0; i &lt; n; ++i) {
+        if (W &lt;= 0) break; // Knapsack is full
+
+        if (items[i].weight &lt;= W) {
+            std::cout &lt;&lt; &quot;\nTaking full item (Value: &quot; &lt;&lt; items[i].value &lt;&lt; &quot;)&quot;;
+            totalValue += items[i].value;
+            W -= items[i].weight;
+        } else {
+            double fraction = W / static_cast&lt;double&gt;(items[i].weight);
+            std::cout &lt;&lt; &quot;\nTaking &quot; &lt;&lt; fraction * 100 &lt;&lt; &quot;% of item (Value: &quot; &lt;&lt; items[i].value &lt;&lt; &quot;)&quot;;
+            totalValue += items[i].value * fraction;
+            W = 0; // Knapsack is now full
+            break;
+        }
+    }
+
+    std::cout &lt;&lt; &quot;\n\nMaximum value = &quot; &lt;&lt; totalValue &lt;&lt; std::endl;
+
+    return 0;
+}
+</pre></div></td></tr></table></div>
+</div>
+      </div>
+      <div id="original" class="tab-panel">
+        <div class="code-block" style="border:none; border-radius:0;"><div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span>
+<span class="normal">33</span>
+<span class="normal">34</span>
+<span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span>
+<span class="normal">40</span>
+<span class="normal">41</span>
+<span class="normal">42</span>
+<span class="normal">43</span>
+<span class="normal">44</span>
+<span class="normal">45</span>
+<span class="normal">46</span>
+<span class="normal">47</span>
+<span class="normal">48</span>
+<span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span>
+<span class="normal">53</span>
+<span class="normal">54</span>
+<span class="normal">55</span>
+<span class="normal">56</span>
+<span class="normal">57</span>
+<span class="normal">58</span>
+<span class="normal">59</span>
+<span class="normal">60</span>
+<span class="normal">61</span>
+<span class="normal">62</span>
+<span class="normal">63</span>
+<span class="normal">64</span>
+<span class="normal">65</span>
+<span class="normal">66</span>
+<span class="normal">67</span>
+<span class="normal">68</span>
+<span class="normal">69</span>
+<span class="normal">70</span>
+<span class="normal">71</span></pre></div></td><td class="code"><div><pre><span></span>#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    int n, W;
+
+    cout &lt;&lt; &quot;Enter number of items: &quot;;
+    cin &gt;&gt; n;
+
+    int value[n], weight[n];
+    double ratio[n];
+
+    cout &lt;&lt; &quot;\nEnter value and weight of each item:\n&quot;;
+    for (int i = 0; i &lt; n; i++) {
+        cout &lt;&lt; &quot;Item &quot; &lt;&lt; i + 1 &lt;&lt; &quot; value: &quot;;
+        cin &gt;&gt; value[i];
+        cout &lt;&lt; &quot;Item &quot; &lt;&lt; i + 1 &lt;&lt; &quot; weight: &quot;;
+        cin &gt;&gt; weight[i];
+    }
+
+    cout &lt;&lt; &quot;\nEnter knapsack capacity: &quot;;
+    cin &gt;&gt; W;
+
+    for (int i = 0; i &lt; n; i++) {
+        ratio[i] = (double)value[i] / weight[i];
+    }
+
+    cout &lt;&lt; &quot;\nValue/Weight Ratios:\n&quot;;
+    for (int i = 0; i &lt; n; i++) {
+        cout &lt;&lt; &quot;Item &quot; &lt;&lt; i + 1 &lt;&lt; &quot;: &quot; &lt;&lt; ratio[i] &lt;&lt; endl;
+    }
+
+    for (int i = 0; i &lt; n - 1; i++) {
+        for (int j = 0; j &lt; n - i - 1; j++) {
+            if (ratio[j] &lt; ratio[j + 1]) {
+
+                swap(ratio[j], ratio[j + 1]);
+
+                swap(value[j], value[j + 1]);
+
+                swap(weight[j], weight[j + 1]);
+            }
+        }
+    }
+
+    cout &lt;&lt; &quot;\nAfter sorting :\n&quot;;
+    for (int i = 0; i &lt; n; i++) {
+        cout &lt;&lt; &quot;Value: &quot; &lt;&lt; value[i]
+             &lt;&lt; &quot;, Weight: &quot; &lt;&lt; weight[i]
+             &lt;&lt; &quot;, Ratio: &quot; &lt;&lt; ratio[i] &lt;&lt; endl;
+    }
+
+    double totalValue = 0.0;
+
+    for (int i = 0; i &lt; n; i++) {
+        if (W &gt;= weight[i]) {
+            cout &lt;&lt; &quot;\nTaking full item (Value: &quot; &lt;&lt; value[i] &lt;&lt; &quot;)&quot;;
+            totalValue += value[i];
+            W -= weight[i];
+        } else {
+            double fraction = (double)W / weight[i];
+            cout &lt;&lt; &quot;\nTaking &quot; &lt;&lt; fraction * 100 &lt;&lt; &quot;% of item (Value: &quot; &lt;&lt; value[i] &lt;&lt; &quot;)&quot;;
+            totalValue += value[i] * fraction;
+            break;
+        }
+    }
+
+    cout &lt;&lt; &quot;\n\nMaximum value = &quot; &lt;&lt; totalValue &lt;&lt; endl;
+
+    return 0;
+}
+</pre></div></td></tr></table></div>
+</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div>AI Cyber Shield &bull; Security Audit Report</div>
+  </div>
+</div>
+
+<script>
+function switchTab(e, id) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  e.target.classList.add('active');
+  document.getElementById(id).classList.add('active');
+}
+</script>
+</body>
+</html>

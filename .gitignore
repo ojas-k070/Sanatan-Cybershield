@@ -1,0 +1,35 @@
+# API Keys and Secrets (Crucial to prevent GitHub security warnings/key leaks)
+*.env
+.env
+industry_project/.env
+
+# Databases (SQLite logs, temp states, and database files)
+*.db
+*.db-shm
+*.db-wal
+cyber_vuln.db
+cyber_vuln.db-shm
+cyber_vuln.db-wal
+
+# Log Files
+*.log
+debug_clone.log
+
+# Python cache & build files
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Environments
+.venv/
+venv/
+env/
+
+# Temp Scan Artifacts (Dynamic files generated during runtime scans)
+industry_project/cyber_vuln_system/sample_code/paste_*
+industry_project/cyber_vuln_system/sample_code/up_*
+industry_project/cyber_vuln_system/sample_code/repo_*
+industry_project/cyber_vuln_system/reports/paste_*
+industry_project/cyber_vuln_system/reports/up_*
+industry_project/cyber_vuln_system/reports/security_report_*

@@ -1,0 +1,1950 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sanatan Labs- AI Cyber sheild | Enterprise Security Intelligence</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+        :root {
+            --bg-dark: #030408;
+            --surface: rgba(12, 14, 23, 0.65);
+            --surface-hover: rgba(20, 24, 38, 0.85);
+            --border: rgba(0, 240, 255, 0.15);
+            --border-highlight: rgba(0, 240, 255, 0.5);
+            --accent-cyan: #00f0ff;
+            --accent-blue: #0055ff;
+            --accent-purple: #9d00ff;
+            --glow-cyan: rgba(0, 240, 255, 0.4);
+            --glow-purple: rgba(157, 0, 255, 0.4);
+        }
+
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: var(--bg-dark);
+            font-family: 'Outfit', sans-serif;
+            color: #f8fafc;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        .display-font {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .mono-font {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 10% 40%, rgba(0, 240, 255, 0.06), transparent 45%),
+                radial-gradient(circle at 90% 60%, rgba(157, 0, 255, 0.06), transparent 45%);
+            z-index: -2;
+            pointer-events: none;
+        }
+
+        body::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+            background-size: 40px 40px;
+            z-index: -2;
+            pointer-events: none;
+            mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+            -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+        }
+
+        .glass-panel {
+            background: var(--surface);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .glass-panel:hover {
+            border-color: rgba(0, 240, 255, 0.3);
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.8), 0 0 20px rgba(0, 240, 255, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .code-area {
+            font-family: 'JetBrains Mono', monospace;
+            background: rgba(2, 3, 7, 0.7);
+            color: #c7d2fe;
+            font-size: 14px;
+            line-height: 1.7;
+            resize: none;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            width: 100%;
+            height: 100%;
+            transition: all 0.3s ease;
+            box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.8);
+        }
+
+        .code-area:focus {
+            border-color: var(--accent-cyan);
+            background: rgba(2, 3, 7, 0.95);
+            outline: none;
+            box-shadow: inset 0 0 30px rgba(0, 0, 0, 1), 0 0 15px var(--glow-cyan);
+            color: #e0e7ff;
+        }
+
+        .code-area::placeholder {
+            color: #334155;
+        }
+
+        .tab-btn {
+            padding: 0.8rem 1.5rem;
+            color: #64748b;
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            transition: all 0.3s ease;
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid transparent;
+            cursor: pointer;
+            background: none;
+        }
+
+        .tab-btn:hover {
+            color: #f8fafc;
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .tab-btn.tab-active {
+            color: var(--accent-cyan);
+            background: rgba(0, 240, 255, 0.08);
+            text-shadow: 0 0 10px var(--glow-cyan);
+            border: 1px solid rgba(0, 240, 255, 0.2);
+            box-shadow: inset 0 0 20px rgba(0, 240, 255, 0.05);
+        }
+
+        .btn-premium {
+            position: relative;
+            background: linear-gradient(135deg, var(--accent-blue) 0%, var(--accent-cyan) 100%);
+            color: #000;
+            padding: 1.2rem 3rem;
+            border-radius: 16px;
+            font-weight: 800;
+            font-family: 'Space Grotesk', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            font-size: 0.9rem;
+            border: none;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 10px 30px -10px var(--accent-cyan);
+            z-index: 1;
+            cursor: pointer;
+        }
+
+        .btn-premium::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+            transition: left 0.6s ease;
+            z-index: -1;
+        }
+
+        .btn-premium:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px -10px var(--accent-cyan), 0 0 30px var(--glow-cyan);
+            color: #fff;
+        }
+
+        .btn-premium:hover::before {
+            left: 100%;
+        }
+
+        .btn-premium:active {
+            transform: translateY(1px);
+            box-shadow: 0 5px 15px -10px var(--accent-cyan);
+        }
+
+        .btn-premium:disabled {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            color: #94a3b8;
+            box-shadow: none;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-premium:disabled::before {
+            display: none;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes pulse-dot {
+            0% {
+                box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.7);
+            }
+
+            70% {
+                box-shadow: 0 0 0 10px rgba(52, 211, 153, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(52, 211, 153, 0);
+            }
+        }
+
+        @keyframes spin {
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #34d399;
+            border-radius: 50%;
+            animation: pulse-dot 2s infinite;
+        }
+
+        .animate-fade-up {
+            animation: fadeUp 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            opacity: 0;
+        }
+
+        .animate-fade {
+            animation: fadeIn 1s ease forwards;
+            opacity: 0;
+        }
+
+        .hidden-screen {
+            display: none !important;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 240, 255, 0.4);
+        }
+
+        .scanning-active #placeholder-icon-container {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 50px var(--glow-cyan);
+            background: rgba(0, 240, 255, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .scanning-active #placeholder-icon-container::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 0;
+            height: 2px;
+            background: var(--accent-cyan);
+            box-shadow: 0 0 15px var(--accent-cyan), 0 0 30px var(--accent-cyan);
+            animation: scanline 2s linear infinite;
+        }
+
+        @keyframes scanline {
+            0% {
+                top: -10px;
+                opacity: 0;
+            }
+
+            10% {
+                opacity: 1;
+            }
+
+            90% {
+                opacity: 1;
+            }
+
+            100% {
+                top: 100%;
+                opacity: 0;
+            }
+        }
+
+        .scanning-active #placeholder-icon {
+            color: var(--accent-cyan);
+            filter: drop-shadow(0 0 20px var(--glow-cyan));
+        }
+
+        .finding-item {
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            border-left: 3px solid transparent;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-left: 3px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .finding-item:hover {
+            transform: translateX(6px);
+            background: rgba(255, 255, 255, 0.05);
+            border-left-color: var(--accent-cyan);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .text-gradient {
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-image: linear-gradient(to right, #ffffff, var(--accent-cyan));
+        }
+
+        .glitch-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        .glitch-text {
+            position: relative;
+            z-index: 1;
+        }
+
+        .glitch-text::before,
+        .glitch-text::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.7;
+        }
+
+        .glitch-text::before {
+            left: 2px;
+            text-shadow: -2px 0 var(--accent-cyan);
+            clip: rect(44px, 450px, 56px, 0);
+            animation: glitch-anim 4s infinite linear alternate-reverse;
+        }
+
+        .glitch-text::after {
+            left: -2px;
+            text-shadow: -2px 0 var(--accent-purple);
+            clip: rect(44px, 450px, 56px, 0);
+            animation: glitch-anim2 4s infinite linear alternate-reverse;
+        }
+
+        @keyframes glitch-anim {
+            0% {
+                clip: rect(15px, 9999px, 40px, 0)
+            }
+
+            20% {
+                clip: rect(50px, 9999px, 20px, 0)
+            }
+
+            40% {
+                clip: rect(10px, 9999px, 60px, 0)
+            }
+
+            60% {
+                clip: rect(70px, 9999px, 10px, 0)
+            }
+
+            80% {
+                clip: rect(30px, 9999px, 80px, 0)
+            }
+
+            100% {
+                clip: rect(5px, 9999px, 30px, 0)
+            }
+        }
+
+        @keyframes glitch-anim2 {
+            0% {
+                clip: rect(50px, 9999px, 80px, 0)
+            }
+
+            20% {
+                clip: rect(10px, 9999px, 30px, 0)
+            }
+
+            40% {
+                clip: rect(70px, 9999px, 10px, 0)
+            }
+
+            60% {
+                clip: rect(20px, 9999px, 60px, 0)
+            }
+
+            80% {
+                clip: rect(80px, 9999px, 20px, 0)
+            }
+
+            100% {
+                clip: rect(30px, 9999px, 90px, 0)
+            }
+        }
+
+        /* NEW: Nav tabs */
+        .nav-tab {
+            padding: 0.6rem 1.2rem;
+            color: #64748b;
+            font-weight: 600;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            transition: all 0.3s ease;
+            border-radius: 10px;
+            cursor: pointer;
+            background: none;
+            border: 1px solid transparent;
+            white-space: nowrap;
+        }
+
+        .nav-tab:hover {
+            color: #e2e8f0;
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .nav-tab.nav-active {
+            color: var(--accent-cyan);
+            background: rgba(0, 240, 255, 0.08);
+            border-color: rgba(0, 240, 255, 0.2);
+            text-shadow: 0 0 10px var(--glow-cyan);
+        }
+
+        /* NEW: Stat card */
+        .stat-card {
+            background: rgba(8, 10, 18, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 16px;
+            padding: 1.5rem;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            border-color: rgba(0, 240, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .stat-card .stat-val {
+            font-size: 2.2rem;
+            font-weight: 800;
+            line-height: 1;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-card .stat-label {
+            font-size: 0.7rem;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            font-weight: 600;
+        }
+
+        /* NEW: Table */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table th {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: #64748b;
+            font-weight: 700;
+            text-align: left;
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .data-table td {
+            padding: 0.75rem 1rem;
+            font-size: 0.82rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            color: #cbd5e1;
+        }
+
+        .data-table tr:hover td {
+            background: rgba(0, 240, 255, 0.02);
+        }
+
+        /* NEW: Status badges */
+        .badge {
+            padding: 0.2rem 0.6rem;
+            border-radius: 6px;
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            display: inline-block;
+        }
+
+        .badge-safe {
+            background: rgba(16, 185, 129, 0.15);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .badge-warning {
+            background: rgba(234, 179, 8, 0.15);
+            color: #facc15;
+            border: 1px solid rgba(234, 179, 8, 0.3);
+        }
+
+        .badge-vulnerable {
+            background: rgba(249, 115, 22, 0.15);
+            color: #fb923c;
+            border: 1px solid rgba(249, 115, 22, 0.3);
+        }
+
+        .badge-critical {
+            background: rgba(239, 68, 68, 0.15);
+            color: #f87171;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .badge-resolved {
+            background: rgba(59, 130, 246, 0.15);
+            color: #60a5fa;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        /* NEW: Modal */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: rgba(12, 14, 23, 0.95);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 2.5rem;
+            max-width: 440px;
+            width: 90%;
+            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.8), 0 0 40px rgba(0, 240, 255, 0.05);
+        }
+
+        .modal-input {
+            width: 100%;
+            background: rgba(2, 3, 7, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 0.85rem 1rem;
+            color: #e2e8f0;
+            font-size: 0.9rem;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .modal-input:focus {
+            border-color: var(--accent-cyan);
+        }
+
+        .modal-input::placeholder {
+            color: #475569;
+        }
+
+        /* NEW: Small button */
+        .btn-sm {
+            padding: 0.4rem 1rem;
+            border-radius: 8px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            border: 1px solid;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: none;
+        }
+
+        .btn-cyan {
+            color: var(--accent-cyan);
+            border-color: rgba(0, 240, 255, 0.3);
+        }
+
+        .btn-cyan:hover {
+            background: rgba(0, 240, 255, 0.1);
+        }
+
+        .btn-red {
+            color: #f87171;
+            border-color: rgba(239, 68, 68, 0.3);
+        }
+
+        .btn-red:hover {
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .btn-green {
+            color: #34d399;
+            border-color: rgba(16, 185, 129, 0.3);
+        }
+
+        /* User dropdown */
+        .user-dropdown {
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            min-width: 260px;
+            background: rgba(10, 12, 20, 0.97);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8), 0 0 30px rgba(0, 240, 255, 0.05);
+            backdrop-filter: blur(20px);
+            z-index: 200;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(-8px) scale(0.96);
+            pointer-events: none;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .user-dropdown.open {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            pointer-events: auto;
+        }
+
+        .user-dropdown-header {
+            padding: 1.25rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .user-dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0.75rem 1.25rem;
+            font-size: 0.78rem;
+            color: #94a3b8;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .user-dropdown-item:hover {
+            background: rgba(255, 255, 255, 0.04);
+            color: #e2e8f0;
+        }
+
+        .user-dropdown-item.danger {
+            color: #f87171;
+        }
+
+        .user-dropdown-item.danger:hover {
+            background: rgba(239, 68, 68, 0.08);
+        }
+
+        .user-dropdown-divider {
+            height: 1px;
+            background: rgba(255, 255, 255, 0.06);
+            margin: 0;
+        }
+
+        .role-badge {
+            font-size: 0.6rem;
+            padding: 0.15rem 0.5rem;
+            border-radius: 6px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .role-admin {
+            background: rgba(234, 179, 8, 0.15);
+            color: #facc15;
+            border: 1px solid rgba(234, 179, 8, 0.3);
+        }
+
+        .role-user {
+            background: rgba(59, 130, 246, 0.15);
+            color: #60a5fa;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-green:hover {
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        /* Page content sections */
+        .page-section {
+            display: none;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .page-section.active {
+            display: flex;
+        }
+    </style>
+</head>
+
+<body class="flex flex-col">
+
+    <!-- ═══ LANDING PAGE ═══ (unchanged) -->
+    <div id="landing-page"
+        class="fixed inset-0 z-50 flex flex-col items-center justify-start md:justify-center text-center px-6 py-8 md:py-12 bg-[#030408] overflow-y-auto">
+        <canvas id="particle-canvas" class="absolute inset-0 z-0"></canvas>
+        <div class="max-w-6xl w-full relative z-10 flex flex-col items-center">
+            <div class="glass-panel p-6 md:p-8 px-10 md:px-16 rounded-3xl relative overflow-hidden flex flex-col items-center w-fit max-w-3xl mb-8 animate-fade-up group">
+                <div class="absolute top-0 right-0 w-48 h-48 bg-cyan-500/10 rounded-full filter blur-3xl group-hover:bg-cyan-500/20 transition-all duration-500"></div>
+                
+                <div class="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-bold tracking-[0.25em] mb-8 animate-fade"
+                    style="box-shadow: 0 0 20px rgba(0, 240, 255, 0.15);">
+                    <i class="fas fa-shield-virus"></i>TRUST INTELLIGENCE
+                </div>
+                
+                <div class="flex flex-col md:flex-row items-center justify-center gap-6 mb-6">
+                    <img src="/static/logo.png" class="h-24 md:h-36 w-auto rounded-2xl object-contain border border-cyan-500/30 bg-black/40 p-2 shadow-2xl" alt="Sanatan Labs Logo">
+                    <div class="flex flex-col items-center md:items-start">
+                        <h1 class="text-4xl md:text-6xl font-black tracking-tighter text-white display-font mb-1">
+                            Sanatan Labs
+                        </h1>
+                        <div class="text-2xl md:text-3xl font-black tracking-wider text-cyan-400 display-font uppercase">
+                            AI Cyber sheild
+                        </div>
+                    </div>
+                </div>
+                
+                <p class="text-lg md:text-xl text-slate-400 font-light max-w-3xl text-center leading-relaxed">
+                    Autonomous security intelligence platform executing deep-neural <br class="hidden md:block">
+                    vulnerability detection with <span class="text-white font-medium">military-grade precision</span>.
+                </p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20 animate-fade-up text-left w-full max-w-5xl"
+                style="animation-delay: 0.3s;">
+                <div class="glass-panel p-8 rounded-3xl relative overflow-hidden group">
+                    <div
+                        class="absolute top-0 right-0 w-32 h-32 bg-cyan-500/10 rounded-full filter blur-3xl group-hover:bg-cyan-500/20 transition-all duration-500">
+                    </div>
+                    <i class="fas fa-network-wired text-cyan-400 mb-6 block text-4xl"></i>
+                    <h3 class="text-white text-xl font-bold mb-3 display-font">Neural Audit</h3>
+                    <p class="text-sm text-slate-400 leading-relaxed font-light">Deep learning models identify complex
+                        logical flaws and zero-day patterns traditional static scanners entirely miss.</p>
+                </div>
+                <div class="glass-panel p-8 rounded-3xl relative overflow-hidden group">
+                    <div
+                        class="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full filter blur-3xl group-hover:bg-blue-500/20 transition-all duration-500">
+                    </div>
+                    <i class="fas fa-bolt text-blue-400 mb-6 block text-4xl"></i>
+                    <h3 class="text-white text-xl font-bold mb-3 display-font">Auto-Remediate</h3>
+                    <p class="text-sm text-slate-400 leading-relaxed font-light">Instantly generates secure,
+                        production-ready code diffs to neutralize threats before they can be exploited.</p>
+                </div>
+                <div class="glass-panel p-8 rounded-3xl relative overflow-hidden group">
+                    <div
+                        class="absolute top-0 right-0 w-32 h-32 bg-purple-500/10 rounded-full filter blur-3xl group-hover:bg-purple-500/20 transition-all duration-500">
+                    </div>
+                    <i class="fas fa-file-contract text-purple-400 mb-6 block text-4xl"></i>
+                    <h3 class="text-white text-xl font-bold mb-3 display-font">Audit Ready</h3>
+                    <p class="text-sm text-slate-400 leading-relaxed font-light">Produces comprehensive, high-fidelity
+                        security intelligence reports compliant with enterprise security standards.</p>
+                </div>
+            </div>
+            <button onclick="launchDashboard()"
+                class="btn-premium px-14 py-5 text-lg flex items-center gap-4 mx-auto animate-fade-up"
+                style="animation-delay: 0.4s;">
+                Initialize Terminal <i class="fas fa-arrow-right text-sm"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- ═══ AUTH MODAL ═══ -->
+    <div id="auth-modal" class="modal-overlay" style="display:none;">
+        <div class="modal-content">
+            <div class="text-center mb-8">
+                <div
+                    class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-cyan-500/20 to-blue-600/20 border border-cyan-500/30 mb-4">
+                    <i class="fas fa-shield-halved text-2xl text-cyan-400"></i>
+                </div>
+                <h2 class="text-xl font-bold text-white display-font">Authenticate</h2>
+                <p class="text-xs text-slate-500 mt-1">Sign in or create an account to access the full platform</p>
+            </div>
+            <div class="space-y-4">
+                <input type="text" id="auth-username" class="modal-input" placeholder="Username"
+                    autocomplete="username">
+                <input type="password" id="auth-password" class="modal-input" placeholder="Password (min 4 chars)"
+                    autocomplete="current-password">
+                <div id="auth-error" class="text-sm text-center py-2 px-3 rounded-lg" style="display:none;"></div>
+                <div id="auth-success"
+                    class="text-sm text-center py-2 px-3 rounded-lg bg-green-500/10 border border-green-500/30 text-green-400"
+                    style="display:none;"></div>
+                <button onclick="doLogin()" id="login-btn" class="btn-premium w-full py-3 text-sm">Sign In</button>
+                <button onclick="doRegister()" id="register-btn"
+                    class="w-full py-2.5 rounded-xl text-sm font-semibold text-slate-400 border border-white/10 hover:border-cyan-500/30 hover:text-cyan-400 transition-all bg-transparent cursor-pointer">Create
+                    Account</button>
+                <button onclick="closeAuthModal()"
+                    class="w-full py-2 text-xs text-slate-600 hover:text-slate-400 transition-colors bg-transparent border-none cursor-pointer">Continue
+                    without login</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ SCAN DETAIL MODAL ═══ -->
+    <div id="scan-detail-modal" class="modal-overlay" style="display:none;">
+        <div class="modal-content" style="max-width:700px; max-height:85vh; overflow-y:auto;">
+            <div class="flex justify-between items-start mb-6">
+                <h2 class="text-lg font-bold text-white display-font">Scan Details</h2>
+                <button onclick="closeScanDetail()"
+                    class="text-slate-500 hover:text-white transition-colors bg-transparent border-none cursor-pointer text-lg"><i
+                        class="fas fa-times"></i></button>
+            </div>
+            <div id="scan-detail-content"><!-- filled by JS --></div>
+        </div>
+    </div>
+
+    <!-- ═══ MAIN DASHBOARD ═══ -->
+    <div id="dashboard-page" class="hidden-screen h-screen flex flex-col overflow-hidden p-4 md:p-6 gap-4">
+
+        <!-- Header -->
+        <header class="flex flex-col md:flex-row items-center justify-between shrink-0 glass-panel px-6 py-3 gap-3"
+            style="position:relative;z-index:100;">
+            <div class="flex items-center gap-4">
+                <img src="/static/logo.png" class="h-10 w-auto rounded-lg" alt="Sanatan Labs Logo">
+                <div>
+                    <h1
+                        class="text-xl md:text-2xl font-black tracking-tight text-white flex items-center gap-3 display-font">
+                        Sanatan Labs- AI Cyber sheild
+                        <span
+                            class="text-[9px] uppercase tracking-[0.2em] font-black px-2 py-1 rounded-md bg-blue-600/20 text-cyan-300 border border-cyan-500/30">ENTERPRISE</span>
+                    </h1>
+                </div>
+            </div>
+
+            <!-- Nav Tabs -->
+            <div class="flex gap-1.5 bg-black/40 p-1 rounded-xl border border-white/5">
+                <button onclick="switchPage('scanner')" id="nav-scanner" class="nav-tab nav-active"><i
+                        class="fas fa-crosshairs mr-1.5"></i>Scanner</button>
+                <button onclick="switchPage('overview')" id="nav-overview" class="nav-tab"><i
+                        class="fas fa-chart-line mr-1.5"></i>Dashboard</button>
+                <button onclick="switchPage('history')" id="nav-history" class="nav-tab"><i
+                        class="fas fa-clock-rotate-left mr-1.5"></i>History</button>
+                <button onclick="switchPage('audit')" id="nav-audit" class="nav-tab"><i
+                        class="fas fa-scroll mr-1.5"></i>Audit Logs</button>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <div class="flex items-center gap-2 bg-black/40 px-4 py-2 rounded-xl border border-white/5">
+                    <div class="live-dot"></div>
+                    <span id="status"
+                        class="text-[10px] font-bold text-slate-300 uppercase tracking-widest mono-font">System
+                        Ready</span>
+                </div>
+                <!-- Logged OUT state -->
+                <div id="user-logged-out" class="flex items-center gap-2 cursor-pointer" onclick="showAuthModal()">
+                    <div
+                        class="w-8 h-8 rounded-full bg-slate-800 border border-white/10 flex items-center justify-center">
+                        <i class="fas fa-user-lock text-slate-500 text-sm"></i>
+                    </div>
+                    <span class="text-xs text-slate-500 mono-font hidden md:inline">Sign In</span>
+                </div>
+                <!-- Logged IN state -->
+                <div id="user-logged-in" class="items-center gap-2 cursor-pointer"
+                    style="display:none;position:relative;">
+                    <div onclick="toggleUserDropdown(event)"
+                        class="flex items-center gap-2.5 bg-black/40 px-3 py-1.5 rounded-xl border border-cyan-500/20 hover:border-cyan-500/40 transition-all">
+                        <div
+                            class="w-7 h-7 rounded-full bg-gradient-to-br from-cyan-500/30 to-blue-600/30 border border-cyan-500/30 flex items-center justify-center">
+                            <i class="fas fa-user-shield text-cyan-400 text-xs"></i>
+                        </div>
+                        <span id="user-display-name"
+                            class="text-xs text-cyan-300 font-semibold mono-font hidden md:inline">admin</span>
+                        <span id="user-role-badge" class="role-badge role-admin hidden md:inline">admin</span>
+                        <i class="fas fa-chevron-down text-[8px] text-slate-500 ml-0.5 transition-transform"
+                            id="dropdown-arrow"></i>
+                    </div>
+                    <!-- Dropdown menu -->
+                    <div id="user-dropdown" class="user-dropdown">
+                        <div class="user-dropdown-header">
+                            <div class="flex items-center gap-3">
+                                <div
+                                    class="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-500/30 to-blue-600/30 border border-cyan-500/30 flex items-center justify-center">
+                                    <i class="fas fa-user-shield text-cyan-400 text-lg"></i>
+                                </div>
+                                <div>
+                                    <div class="text-sm font-bold text-white" id="dropdown-username">admin</div>
+                                    <div class="text-[10px] text-slate-500 mono-font" id="dropdown-role">Administrator
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="user-dropdown-item" onclick="switchPage('overview'); closeUserDropdown();">
+                            <i class="fas fa-chart-pie text-cyan-500 w-4 text-center"></i> Dashboard
+                        </div>
+                        <div class="user-dropdown-item" onclick="switchPage('history'); closeUserDropdown();">
+                            <i class="fas fa-clock-rotate-left text-blue-400 w-4 text-center"></i> My Scans
+                        </div>
+                        <div class="user-dropdown-item" onclick="switchPage('audit'); closeUserDropdown();">
+                            <i class="fas fa-scroll text-purple-400 w-4 text-center"></i> Audit Logs
+                        </div>
+                        <div class="user-dropdown-divider"></div>
+                        <div class="user-dropdown-item danger" onclick="doLogout()">
+                            <i class="fas fa-right-from-bracket w-4 text-center"></i> Sign Out
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- ═══ PAGE: SCANNER (existing) ═══ -->
+        <div id="page-scanner" class="page-section active flex-1 min-h-0">
+            <main class="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6 min-h-0">
+                <!-- Left: Input Console -->
+                <div class="lg:col-span-7 flex flex-col min-h-0 glass-panel p-5 lg:p-6">
+                    <div class="flex items-center justify-between mb-6 shrink-0">
+                        <h2
+                            class="text-sm font-bold text-slate-400 uppercase tracking-widest display-font flex items-center gap-3">
+                            <i class="fas fa-terminal text-cyan-500"></i> Input Console
+                        </h2>
+                        <div class="flex gap-2 bg-black/40 p-1.5 rounded-xl border border-white/5">
+                            <button onclick="switchTab('paste')" id="tab-paste" class="tab-btn tab-active">Raw
+                                Code</button>
+                            <button onclick="switchTab('upload')" id="tab-upload" class="tab-btn">File</button>
+                            <button onclick="switchTab('github')" id="tab-github" class="tab-btn">GitHub</button>
+                        </div>
+                    </div>
+                    <div class="flex-1 min-h-0 relative">
+                        <div id="section-paste"
+                            class="h-full flex flex-col absolute inset-0 w-full transition-opacity duration-300">
+                            <textarea id="code-input" class="code-area p-5"
+                                placeholder="// Initialize code sequence for autonomous security auditing...&#10;&#10;def execute_scan():&#10;    pass"></textarea>
+                        </div>
+                        <div id="section-upload"
+                            class="hidden h-full absolute inset-0 w-full transition-opacity duration-300">
+                            <label for="file-selector"
+                                class="flex flex-col items-center justify-center h-full bg-black/20 border-dashed border-2 border-slate-700/60 rounded-2xl cursor-pointer hover:border-cyan-500/50 hover:bg-cyan-500/5 transition-all group">
+                                <div
+                                    class="w-16 h-16 bg-slate-800/50 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                                    <i
+                                        class="fas fa-cloud-upload-alt text-3xl text-cyan-500/70 group-hover:text-cyan-400"></i>
+                                </div>
+                                <p id="file-label" class="text-lg text-slate-300 font-medium display-font">Select target
+                                    file</p>
+                                <p class="text-sm text-slate-500 mt-2">Drag and drop or click to browse</p>
+                                <input type="file" id="file-selector" class="hidden" onchange="handleFileSelect()">
+                            </label>
+                        </div>
+                        <div id="section-github"
+                            class="hidden h-full flex flex-col justify-center px-10 absolute inset-0 w-full transition-opacity duration-300 bg-black/20 rounded-2xl border border-white/5">
+                            <label
+                                class="text-[11px] font-bold text-cyan-500 uppercase tracking-widest mb-4 block mono-font">Target
+                                Git Endpoint</label>
+                            <div
+                                class="bg-black/50 border border-white/10 p-4 rounded-xl flex items-center gap-4 focus-within:border-cyan-500/50 transition-all">
+                                <i class="fab fa-github text-slate-400 text-2xl"></i>
+                                <input type="text" id="github-url"
+                                    class="bg-transparent w-full outline-none text-base text-white mono-font"
+                                    placeholder="https://github.com/org/repo.git">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-6 pt-6 border-t border-white/10 flex items-center justify-between shrink-0">
+                        <div
+                            class="text-[10px] text-slate-500 mono-font uppercase tracking-widest flex items-center gap-2">
+                            MODE // <span id="current-mode"
+                                class="text-cyan-400 font-bold bg-cyan-500/10 px-2 py-1 rounded">RAW_PASTE</span>
+                        </div>
+                        <button onclick="runAudit()" id="scan-btn" class="btn-premium py-3 px-8 text-xs">Execute
+                            Autonomous Audit</button>
+                    </div>
+                </div>
+
+                <!-- Right: Intelligence Feed -->
+                <div class="lg:col-span-5 flex flex-col min-h-0">
+                    <div id="results-placeholder"
+                        class="glass-panel flex-1 flex flex-col items-center justify-center p-10 text-center transition-all duration-500 h-full">
+                        <div id="placeholder-icon-container"
+                            class="bg-black/40 p-6 rounded-3xl mb-6 transition-all duration-500 border border-white/5">
+                            <i id="placeholder-icon"
+                                class="fas fa-fingerprint text-5xl text-slate-600 transition-colors duration-500"></i>
+                        </div>
+                        <h3 id="placeholder-text" class="text-xl font-bold text-slate-200 display-font">Awaiting
+                            Intelligence</h3>
+                        <p id="placeholder-subtext" class="text-sm text-slate-500 mt-3 max-w-xs leading-relaxed">Select
+                            a data source and initialize the audit to generate security telemetry.</p>
+                    </div>
+                    <div id="results-panel" class="hidden flex-1 flex flex-col min-h-0 gap-4">
+                        <!-- Risk Score -->
+                        <div class="glass-panel p-6 shrink-0 relative overflow-hidden flex flex-col justify-between">
+                            <div class="absolute -right-10 -top-10 w-40 h-40 bg-cyan-500/10 rounded-full blur-3xl">
+                            </div>
+                            <div class="flex justify-between items-start mb-4 z-10">
+                                <div>
+                                    <h3
+                                        class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 mono-font">
+                                        Aggregate Risk Index</h3>
+                                    <p class="text-xs text-slate-500">Composite Exploitability Rating</p>
+                                </div>
+                                <span id="risk-level"
+                                    class="text-[10px] font-black tracking-widest px-3 py-1 rounded-md border shadow-lg uppercase"></span>
+                            </div>
+                            <!-- Lifecycle Status -->
+                            <div id="lifecycle-badge-area" class="flex items-center gap-2 mb-3 z-10">
+                                <span
+                                    class="text-[9px] text-slate-500 uppercase tracking-widest mono-font">Lifecycle:</span>
+                                <span id="lifecycle-badge" class="badge badge-safe">Safe</span>
+                            </div>
+                            <div class="flex items-center justify-center py-2 z-10">
+                                <div class="relative w-40 h-40 flex items-center justify-center">
+                                    <svg class="transform -rotate-90 w-40 h-40 absolute inset-0">
+                                        <circle cx="80" cy="80" r="70" stroke="rgba(255,255,255,0.05)" stroke-width="12"
+                                            fill="none" />
+                                        <circle id="risk-circle" cx="80" cy="80" r="70" stroke="var(--accent-cyan)"
+                                            stroke-width="12" fill="none" stroke-dasharray="439.8"
+                                            stroke-dashoffset="439.8"
+                                            style="transition: stroke-dashoffset 1.5s cubic-bezier(0.16, 1, 0.3, 1), stroke 0.5s ease; stroke-linecap: round; filter: drop-shadow(0 0 8px rgba(0, 240, 255, 0.6));" />
+                                    </svg>
+                                    <div class="flex flex-col items-center">
+                                        <div class="text-5xl font-black tracking-tighter text-white display-font"
+                                            id="risk-score">0</div>
+                                        <span class="text-[9px] text-cyan-400 mono-font mt-1 tracking-widest">/
+                                            100</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Findings -->
+                        <div class="glass-panel flex-1 flex flex-col min-h-0 border-t-4 border-t-cyan-500/50">
+                            <div class="p-4 border-b border-white/5 flex justify-between items-center bg-black/20">
+                                <h4
+                                    class="text-[10px] font-bold text-slate-300 uppercase tracking-widest mono-font flex items-center gap-2">
+                                    <i class="fas fa-list-ul text-cyan-500"></i> Detection Pipeline</h4>
+                                <span id="finding-count"
+                                    class="text-[9px] font-bold mono-font bg-cyan-500/10 text-cyan-400 px-2 py-1 rounded-md border border-cyan-500/20">0
+                                    FINDINGS</span>
+                            </div>
+                            <div id="findings-container" class="flex-1 overflow-y-auto p-4 space-y-2"></div>
+                        </div>
+                        <a id="report-link" target="_blank"
+                            class="glass-panel p-4 bg-gradient-to-r from-blue-600/20 to-cyan-600/20 hover:from-blue-600/30 hover:to-cyan-600/30 border border-cyan-500/30 transition-all text-center shrink-0 group flex justify-center items-center gap-3 cursor-pointer">
+                            <i class="fas fa-file-pdf text-cyan-400 group-hover:scale-110 transition-transform"></i>
+                            <span class="text-xs font-bold text-white uppercase tracking-widest display-font">Dispatch
+                                Intelligence Report</span>
+                        </a>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <!-- ═══ PAGE: DASHBOARD OVERVIEW ═══ -->
+        <div id="page-overview" class="page-section flex-1 min-h-0 overflow-y-auto" style="position:relative;">
+            <!-- Login overlay -->
+            <div id="overview-login-gate" class="flex-1 flex items-center justify-center"
+                style="position:absolute;inset:0;z-index:10;background:rgba(3,4,8,0.92);border-radius:20px;display:none;">
+                <div class="text-center"><i class="fas fa-lock text-4xl text-slate-600 mb-4 block"></i>
+                    <p class="text-slate-400 mb-4">Please login to view the dashboard</p><button
+                        onclick="showAuthModal()" class="btn-sm btn-cyan">Login</button>
+                </div>
+            </div>
+            <div id="overview-content" class="space-y-4">
+                <!-- Stats Row -->
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="stat-card">
+                        <div class="stat-val text-cyan-400" id="stat-total">0</div>
+                        <div class="stat-label">Total Scans</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-val text-orange-400" id="stat-active">0</div>
+                        <div class="stat-label">Active Scans</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-val text-blue-400" id="stat-resolved">0</div>
+                        <div class="stat-label">Resolved</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-val text-purple-400" id="stat-avg">0</div>
+                        <div class="stat-label">Avg Score</div>
+                    </div>
+                </div>
+                <!-- Chart + Status Breakdown -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                    <div class="lg:col-span-2 glass-panel p-6">
+                        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4 display-font"><i
+                                class="fas fa-chart-line text-cyan-500 mr-2"></i>Score Progression</h3>
+                        <canvas id="overview-chart" height="220"></canvas>
+                        <p class="text-[10px] text-slate-600 mt-2 text-center mono-font">Recent scan score history</p>
+                    </div>
+                    <div class="glass-panel p-6">
+                        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4 display-font"><i
+                                class="fas fa-circle-nodes text-cyan-500 mr-2"></i>Lifecycle Breakdown</h3>
+                        <div class="space-y-3" id="lifecycle-breakdown">
+                            <div class="flex justify-between items-center"><span
+                                    class="text-xs text-slate-400">Safe</span><span class="badge badge-safe"
+                                    id="lb-safe">0</span></div>
+                            <div class="flex justify-between items-center"><span
+                                    class="text-xs text-slate-400">Warning</span><span class="badge badge-warning"
+                                    id="lb-warning">0</span></div>
+                            <div class="flex justify-between items-center"><span
+                                    class="text-xs text-slate-400">Vulnerable</span><span class="badge badge-vulnerable"
+                                    id="lb-vulnerable">0</span></div>
+                            <div class="flex justify-between items-center"><span
+                                    class="text-xs text-slate-400">Critical</span><span class="badge badge-critical"
+                                    id="lb-critical">0</span></div>
+                            <div class="flex justify-between items-center"><span
+                                    class="text-xs text-slate-400">Resolved</span><span class="badge badge-resolved"
+                                    id="lb-resolved">0</span></div>
+                        </div>
+                        <hr class="border-white/5 my-4">
+                        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3 display-font">
+                            Severity</h3>
+                        <div class="space-y-2" id="severity-breakdown">
+                            <div class="flex justify-between items-center"><span class="text-xs text-slate-400">🔴
+                                    Critical</span><span class="text-xs text-white font-bold" id="sb-critical">0</span>
+                            </div>
+                            <div class="flex justify-between items-center"><span class="text-xs text-slate-400">🟠
+                                    High</span><span class="text-xs text-white font-bold" id="sb-high">0</span></div>
+                            <div class="flex justify-between items-center"><span class="text-xs text-slate-400">🟡
+                                    Medium</span><span class="text-xs text-white font-bold" id="sb-medium">0</span>
+                            </div>
+                            <div class="flex justify-between items-center"><span class="text-xs text-slate-400">🟢
+                                    Low</span><span class="text-xs text-white font-bold" id="sb-low">0</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ PAGE: SCAN HISTORY ═══ -->
+        <div id="page-history" class="page-section flex-1 min-h-0 overflow-y-auto">
+            <div class="glass-panel p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest display-font"><i
+                            class="fas fa-clock-rotate-left text-cyan-500 mr-2"></i>Scan History</h3>
+                    <div class="flex gap-2 items-center">
+                        <button onclick="loadScans(Math.max(1,scanPage-1))" class="btn-sm btn-cyan"
+                            id="prev-scan-btn">&laquo; Prev</button>
+                        <span class="text-xs text-slate-500 mono-font" id="scan-page-info">Page 1</span>
+                        <button onclick="loadScans(scanPage+1)" class="btn-sm btn-cyan" id="next-scan-btn">Next
+                            &raquo;</button>
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Source</th>
+                                <th>Score</th>
+                                <th>Lifecycle</th>
+                                <th>Date</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="scans-tbody">
+                            <tr>
+                                <td colspan="6" class="text-center text-slate-600 py-8">No scans yet. Run your first
+                                    scan!</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ PAGE: AUDIT LOGS ═══ -->
+        <div id="page-audit" class="page-section flex-1 min-h-0 overflow-y-auto">
+            <div class="glass-panel p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest display-font"><i
+                            class="fas fa-scroll text-cyan-500 mr-2"></i>Audit Trail</h3>
+                    <div class="flex gap-2 items-center">
+                        <button onclick="loadAuditLogs(Math.max(1,auditPage-1))" class="btn-sm btn-cyan">&laquo;
+                            Prev</button>
+                        <span class="text-xs text-slate-500 mono-font" id="audit-page-info">Page 1</span>
+                        <button onclick="loadAuditLogs(auditPage+1)" class="btn-sm btn-cyan">Next &raquo;</button>
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Action</th>
+                                <th>By</th>
+                                <th>Score Change</th>
+                                <th>Status Change</th>
+                                <th>Details</th>
+                                <th>Timestamp</th>
+                            </tr>
+                        </thead>
+                        <tbody id="audit-tbody">
+                            <tr>
+                                <td colspan="6" class="text-center text-slate-600 py-8">No audit logs available.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ═══ GLOBALS ═══
+        const API = '/api/v2';
+        let currentMode = 'paste';
+        let currentPage = 'scanner';
+        let scanPage = 1, auditPage = 1;
+
+        function getToken() { return localStorage.getItem('cyberShieldToken'); }
+        function isLoggedIn() { return !!getToken(); }
+        function authHeaders() { const t = getToken(); return t ? { 'Authorization': 'Bearer ' + t, 'Content-Type': 'application/json' } : { 'Content-Type': 'application/json' }; }
+
+        async function apiFetch(url, opts = {}) {
+            const headers = authHeaders();
+            if (opts.body && typeof opts.body === 'object' && !(opts.body instanceof FormData)) { opts.body = JSON.stringify(opts.body); }
+            if (opts.body instanceof FormData) { delete headers['Content-Type']; headers['Authorization'] = 'Bearer ' + getToken(); }
+            const res = await fetch(API + url, { ...opts, headers: { ...headers, ...(opts.headers || {}) } });
+            const json = await res.json();
+            if (!res.ok) throw new Error(json.message || json.error || `Error ${res.status}`);
+            return json;
+        }
+
+        // ═══ AUTH ═══
+        function showAuthError(msg) {
+            const el = document.getElementById('auth-error');
+            el.textContent = msg;
+            el.style.display = 'block';
+            el.style.background = 'rgba(239,68,68,0.1)';
+            el.style.border = '1px solid rgba(239,68,68,0.3)';
+            el.style.color = '#f87171';
+            document.getElementById('auth-success').style.display = 'none';
+        }
+        function showAuthSuccess(msg) {
+            const el = document.getElementById('auth-success');
+            el.textContent = msg;
+            el.style.display = 'block';
+            document.getElementById('auth-error').style.display = 'none';
+        }
+        function clearAuthFeedback() {
+            document.getElementById('auth-error').style.display = 'none';
+            document.getElementById('auth-success').style.display = 'none';
+        }
+        function showAuthModal() { document.getElementById('auth-modal').style.display = 'flex'; clearAuthFeedback(); }
+        function closeAuthModal() { document.getElementById('auth-modal').style.display = 'none'; clearAuthFeedback(); }
+
+        async function doLogin() {
+            const u = document.getElementById('auth-username').value.trim();
+            const p = document.getElementById('auth-password').value;
+            clearAuthFeedback();
+            if (!u || !p) { showAuthError('Please enter both username and password'); return; }
+            const btn = document.getElementById('login-btn');
+            btn.disabled = true; btn.innerHTML = '<i class="fas fa-circle-notch fa-spin mr-2"></i>Signing in...';
+            try {
+                const res = await apiFetch('/auth/login', { method: 'POST', body: { username: u, password: p } });
+                localStorage.setItem('cyberShieldToken', res.data.token);
+                localStorage.setItem('cyberShieldUser', JSON.stringify(res.data.user));
+                showAuthSuccess('Login successful! Welcome, ' + res.data.user.username);
+                setTimeout(() => { closeAuthModal(); updateUserUI(); }, 600);
+            } catch (e) {
+                showAuthError(e.message || 'Login failed. Check your credentials.');
+            } finally {
+                btn.disabled = false; btn.innerHTML = 'Sign In';
+            }
+        }
+
+        async function doRegister() {
+            const u = document.getElementById('auth-username').value.trim();
+            const p = document.getElementById('auth-password').value;
+            clearAuthFeedback();
+            if (!u) { showAuthError('Please enter a username'); return; }
+            if (!p || p.length < 4) { showAuthError('Password must be at least 4 characters'); return; }
+            const btn = document.getElementById('register-btn');
+            btn.disabled = true; btn.textContent = 'Creating account...';
+            try {
+                const res = await apiFetch('/auth/register', { method: 'POST', body: { username: u, password: p } });
+                localStorage.setItem('cyberShieldToken', res.data.token);
+                localStorage.setItem('cyberShieldUser', JSON.stringify(res.data.user));
+                showAuthSuccess('Account created! Welcome, ' + res.data.user.username);
+                setTimeout(() => { closeAuthModal(); updateUserUI(); }, 600);
+            } catch (e) {
+                let msg = e.message || 'Registration failed';
+                if (msg.includes('UNIQUE') || msg.includes('already')) msg = 'Username "' + u + '" is already taken. Try a different one.';
+                showAuthError(msg);
+            } finally {
+                btn.disabled = false; btn.textContent = 'Create Account';
+            }
+        }
+
+        function updateUserUI() {
+            const user = JSON.parse(localStorage.getItem('cyberShieldUser') || 'null');
+            const loggedOut = document.getElementById('user-logged-out');
+            const loggedIn = document.getElementById('user-logged-in');
+            if (user) {
+                loggedOut.style.display = 'none';
+                loggedIn.style.display = 'flex';
+                document.getElementById('user-display-name').textContent = user.username;
+                document.getElementById('dropdown-username').textContent = user.username;
+                const role = user.role || 'user';
+                const roleBadge = document.getElementById('user-role-badge');
+                roleBadge.textContent = role;
+                roleBadge.className = 'role-badge role-' + role + ' hidden md:inline';
+                document.getElementById('dropdown-role').textContent = role === 'admin' ? 'Administrator' : 'Standard User';
+            } else {
+                loggedOut.style.display = 'flex';
+                loggedIn.style.display = 'none';
+                closeUserDropdown();
+            }
+            // Refresh current page data
+            if (currentPage === 'overview') loadDashboard();
+            if (currentPage === 'history') loadScans(1);
+            if (currentPage === 'audit') loadAuditLogs(1);
+        }
+
+        function toggleUserDropdown(e) {
+            e.stopPropagation();
+            const dd = document.getElementById('user-dropdown');
+            const arrow = document.getElementById('dropdown-arrow');
+            dd.classList.toggle('open');
+            arrow.style.transform = dd.classList.contains('open') ? 'rotate(180deg)' : '';
+        }
+        function closeUserDropdown() {
+            const dd = document.getElementById('user-dropdown');
+            const arrow = document.getElementById('dropdown-arrow');
+            if (dd) dd.classList.remove('open');
+            if (arrow) arrow.style.transform = '';
+        }
+        document.addEventListener('click', (e) => {
+            const loggedIn = document.getElementById('user-logged-in');
+            if (loggedIn && !loggedIn.contains(e.target)) closeUserDropdown();
+        });
+
+        function doLogout() {
+            localStorage.removeItem('cyberShieldToken');
+            localStorage.removeItem('cyberShieldUser');
+            closeUserDropdown();
+            updateUserUI();
+            switchPage('scanner');
+        }
+
+        // ═══ PARTICLES ═══
+        const canvas = document.getElementById('particle-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = []; let mouse = { x: null, y: null, radius: 220 };
+
+        function initParticles() {
+            canvas.width = window.innerWidth; canvas.height = window.innerHeight; particles = [];
+            const n = Math.min((canvas.width * canvas.height) / 5000, 220);
+            for (let i = 0; i < n; i++) {
+                particles.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, size: Math.random() * 2 + 1, speedX: (Math.random() - 0.5) * 0.8, speedY: (Math.random() - 0.5) * 0.8, color: Math.random() > 0.5 ? 'rgba(0,240,255,0.4)' : 'rgba(157,0,255,0.4)' });
+            }
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach((p, i) => {
+                p.x += p.speedX; p.y += p.speedY;
+                if (p.x < 0 || p.x > canvas.width) p.speedX *= -1; 
+                if (p.y < 0 || p.y > canvas.height) p.speedY *= -1;
+
+                let pColor = p.color;
+                let sizeMultiplier = 1;
+                if (mouse.x) { 
+                    const dx = mouse.x - p.x;
+                    const dy = mouse.y - p.y;
+                    const d = Math.sqrt(dx * dx + dy * dy); 
+                    if (d < mouse.radius) { 
+                        const f = (mouse.radius - d) / mouse.radius; 
+                        p.x -= (dx / d) * f * 10; 
+                        p.y -= (dy / d) * f * 10; 
+                        pColor = `rgba(0, 240, 255, ${0.4 + 0.6 * f})`;
+                        sizeMultiplier = 1 + 1.2 * f;
+
+                        // Draw dynamic connection from cursor to particle
+                        ctx.strokeStyle = `rgba(0, 240, 255, ${0.35 * f})`;
+                        ctx.lineWidth = 1.5 * f;
+                        ctx.beginPath();
+                        ctx.moveTo(p.x, p.y);
+                        ctx.lineTo(mouse.x, mouse.y);
+                        ctx.stroke();
+                    } 
+                }
+
+                ctx.fillStyle = pColor; ctx.beginPath(); ctx.arc(p.x, p.y, p.size * sizeMultiplier, 0, Math.PI * 2); ctx.fill();
+                for (let j = i + 1; j < particles.length; j++) { const p2 = particles[j], dx = p.x - p2.x, dy = p.y - p2.y, d = Math.sqrt(dx * dx + dy * dy); if (d < 120) { ctx.strokeStyle = `rgba(255,255,255,${0.08 * (1 - d / 120)})`; ctx.lineWidth = 0.5; ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p2.x, p2.y); ctx.stroke(); } }
+            });
+            requestAnimationFrame(animateParticles);
+        }
+        window.addEventListener('mousemove', (e) => { mouse.x = e.clientX; mouse.y = e.clientY; });
+        window.addEventListener('mouseout', () => { mouse.x = null; mouse.y = null; });
+        window.addEventListener('touchmove', (e) => {
+            if (e.touches.length > 0) {
+                mouse.x = e.touches[0].clientX;
+                mouse.y = e.touches[0].clientY;
+            }
+        });
+        window.addEventListener('touchend', () => { mouse.x = null; mouse.y = null; });
+        window.addEventListener('touchcancel', () => { mouse.x = null; mouse.y = null; });
+        window.addEventListener('resize', initParticles);
+        initParticles(); animateParticles();
+
+        // ═══ NAVIGATION ═══
+        function launchDashboard() {
+            const lp = document.getElementById('landing-page');
+            const dp = document.getElementById('dashboard-page');
+            lp.style.transition = 'all 0.6s cubic-bezier(0.8, 0, 0.2, 1)';
+            lp.style.opacity = '0'; lp.style.transform = 'scale(1.05) translateY(-20px)'; lp.style.filter = 'blur(10px)';
+            setTimeout(() => { lp.classList.add('hidden-screen'); dp.classList.remove('hidden-screen'); dp.classList.add('animate-fade'); updateUserUI(); }, 600);
+        }
+
+        function switchPage(page) {
+            currentPage = page;
+            ['scanner', 'overview', 'history', 'audit'].forEach(p => {
+                document.getElementById(`page-${p}`).classList.remove('active');
+                document.getElementById(`nav-${p}`).classList.remove('nav-active');
+            });
+            document.getElementById(`page-${page}`).classList.add('active');
+            document.getElementById(`nav-${page}`).classList.add('nav-active');
+
+            if (page === 'overview') loadDashboard();
+            if (page === 'history') loadScans(1);
+            if (page === 'audit') loadAuditLogs(1);
+        }
+
+        // ═══ SCANNER TAB SWITCHING ═══
+        function switchTab(mode) {
+            currentMode = mode;
+            ['paste', 'upload', 'github'].forEach(m => {
+                document.getElementById(`tab-${m}`).classList.remove('tab-active');
+                const s = document.getElementById(`section-${m}`);
+                s.style.opacity = '0';
+                setTimeout(() => { s.classList.add('hidden'); if (m === mode) { s.classList.remove('hidden'); setTimeout(() => s.style.opacity = '1', 50); } }, 150);
+            });
+            document.getElementById(`tab-${mode}`).classList.add('tab-active');
+            document.getElementById('current-mode').innerText = mode.toUpperCase() === 'PASTE' ? 'RAW_PASTE' : mode.toUpperCase();
+            resetRightPanel();
+        }
+
+        function resetRightPanel() {
+            document.getElementById('results-panel').classList.add('hidden');
+            const ph = document.getElementById('results-placeholder');
+            ph.classList.remove('hidden', 'scanning-active');
+            document.getElementById('placeholder-icon').className = 'fas fa-fingerprint text-5xl text-slate-600 transition-colors duration-500';
+            document.getElementById('placeholder-text').innerText = 'Awaiting Intelligence';
+            document.getElementById('placeholder-subtext').innerText = 'Select a data source and initialize the audit to generate security telemetry.';
+            document.getElementById('risk-circle').style.strokeDashoffset = "439.8";
+            document.getElementById('risk-score').innerText = '0';
+        }
+
+        function handleFileSelect() {
+            const file = document.getElementById('file-selector').files[0];
+            if (file) { document.getElementById('file-label').innerText = file.name; document.getElementById('file-label').classList.add('text-cyan-400'); }
+        }
+
+        function statusBadgeClass(status) {
+            const s = (status || '').toLowerCase();
+            if (s === 'safe') return 'badge-safe'; if (s === 'warning') return 'badge-warning';
+            if (s === 'vulnerable') return 'badge-vulnerable'; if (s === 'critical') return 'badge-critical';
+            return 'badge-resolved';
+        }
+
+        function applyRiskStyling(level, score, lifecycleStatus) {
+            const el = document.getElementById('risk-level');
+            const circle = document.getElementById('risk-circle');
+            el.innerText = level.toUpperCase();
+
+            let colorClass = 'text-cyan-400 border-cyan-400/30 bg-cyan-400/10', strokeColor = '#00f0ff';
+            if (level.toLowerCase() === 'critical') { colorClass = 'text-red-500 border-red-500/30 bg-red-500/10'; strokeColor = '#ef4444'; }
+            else if (level.toLowerCase() === 'high') { colorClass = 'text-orange-500 border-orange-500/30 bg-orange-500/10'; strokeColor = '#f97316'; }
+            else if (level.toLowerCase() === 'medium') { colorClass = 'text-yellow-400 border-yellow-400/30 bg-yellow-400/10'; strokeColor = '#facc15'; }
+
+            el.className = `text-[10px] font-black tracking-widest px-3 py-1 rounded-md border shadow-lg uppercase ${colorClass}`;
+            circle.style.stroke = strokeColor;
+
+            // Lifecycle badge
+            if (lifecycleStatus) {
+                const lb = document.getElementById('lifecycle-badge');
+                lb.textContent = lifecycleStatus;
+                lb.className = `badge ${statusBadgeClass(lifecycleStatus)}`;
+            }
+
+            // Animate score counter
+            let cur = 0; const target = parseInt(score), dur = 1500, int = 20, steps = dur / int, inc = target / steps;
+            const counter = setInterval(() => { cur += inc; if (cur >= target) { clearInterval(counter); document.getElementById('risk-score').innerText = target; } else { document.getElementById('risk-score').innerText = Math.floor(cur); } }, int);
+
+            // Animate circle
+            setTimeout(() => { const circ = 439.8; circle.style.strokeDashoffset = circ - (score / 100) * circ; }, 100);
+        }
+
+        // ═══ RUN AUDIT ═══
+        async function runAudit() {
+            const btn = document.getElementById('scan-btn');
+            const results = document.getElementById('results-panel');
+            const placeholder = document.getElementById('results-placeholder');
+            const statusLabel = document.getElementById('status');
+
+            results.classList.add('hidden'); placeholder.classList.remove('hidden'); placeholder.classList.add('scanning-active');
+            const icon = document.getElementById('placeholder-icon');
+            icon.className = 'fas fa-crosshairs text-5xl'; icon.style.animation = 'spin 3s linear infinite';
+            document.getElementById('placeholder-text').innerText = 'Executing Neural Scan...';
+            document.getElementById('placeholder-subtext').innerText = 'Analyzing abstract syntax trees and security heuristics.';
+            btn.disabled = true; btn.innerHTML = `<i class="fas fa-circle-notch fa-spin mr-2"></i> Analyzing...`;
+            statusLabel.innerText = "Analyzing Threat Data..."; statusLabel.classList.replace('text-slate-300', 'text-cyan-400');
+
+            try {
+                let data, lifecycleStatus = 'Safe';
+
+                if (isLoggedIn()) {
+                    // Use v2 API for logged-in users
+                    let formData = new FormData();
+                    formData.append('mode', currentMode);
+                    if (currentMode === 'paste') formData.append('code', document.getElementById('code-input').value);
+                    else if (currentMode === 'upload') formData.append('file', document.getElementById('file-selector').files[0]);
+                    else if (currentMode === 'github') formData.append('github_url', document.getElementById('github-url').value);
+
+                    const res = await fetch(API + '/scan', { method: 'POST', headers: { 'Authorization': 'Bearer ' + getToken() }, body: formData });
+                    const json = await res.json();
+                    if (!res.ok) throw new Error(json.message || `Error ${res.status}`);
+
+                    data = {
+                        risk_score: json.data.riskScore,
+                        risk_level: json.data.riskLevel,
+                        vulnerabilities: (json.data.vulnerabilities || []).map(v => ({
+                            category: v.category, severity: v.severity,
+                            line_number: v.lineNumber, vuln_id: v.id ? v.id.substring(0, 8) : 'AI-VULN'
+                        })),
+                        report_path: json.data.reportPath
+                    };
+                    lifecycleStatus = json.data.lifecycleStatus || 'Safe';
+                } else {
+                    // Use legacy /analyze for non-logged-in users
+                    let formData = new FormData();
+                    formData.append('mode', currentMode);
+                    if (currentMode === 'paste') formData.append('code', document.getElementById('code-input').value);
+                    else if (currentMode === 'upload') formData.append('file', document.getElementById('file-selector').files[0]);
+                    else if (currentMode === 'github') formData.append('github_url', document.getElementById('github-url').value);
+
+                    const response = await fetch('/analyze', { method: 'POST', body: formData });
+                    data = await response.json();
+                    if (!response.ok || data.error) throw new Error(data.error || `Server Error ${response.status}`);
+                }
+
+                setTimeout(() => {
+                    placeholder.classList.add('hidden'); icon.style.animation = 'none';
+                    results.classList.remove('hidden'); results.classList.add('animate-fade-up');
+                    applyRiskStyling(data.risk_level, data.risk_score, lifecycleStatus);
+
+                    const container = document.getElementById('findings-container');
+                    container.innerHTML = '';
+                    document.getElementById('finding-count').innerText = `${data.vulnerabilities.length} FINDINGS`;
+
+                    data.vulnerabilities.forEach((v, idx) => {
+                        const div = document.createElement('div');
+                        div.className = 'p-3 finding-item rounded-xl flex justify-between items-center animate-fade-up';
+                        div.style.animationDelay = `${idx * 0.08}s`;
+                        let sevColor = 'text-cyan-400';
+                        if (v.severity === 'Critical') sevColor = 'text-red-500';
+                        else if (v.severity === 'High') sevColor = 'text-orange-500';
+                        else if (v.severity === 'Medium') sevColor = 'text-yellow-400';
+
+                        div.innerHTML = `<div class="flex items-start gap-3"><div class="mt-1 ${sevColor}"><i class="fas fa-bug"></i></div><div><div class="text-xs font-bold text-white uppercase tracking-wider mb-1 display-font">${v.category}</div><div class="flex items-center gap-2"><span class="text-[9px] bg-white/5 px-2 py-0.5 rounded text-slate-400 mono-font">LINE ${v.line_number}</span><span class="text-[9px] text-slate-500 mono-font">${v.vuln_id || ''}</span></div></div></div>`;
+                        container.appendChild(div);
+                    });
+                    document.getElementById('report-link').href = data.report_path;
+                }, 800);
+
+            } catch (err) {
+                setTimeout(() => { alert(`Audit Failed: ${err.message}`); resetRightPanel(); icon.style.animation = 'none'; }, 500);
+            } finally {
+                setTimeout(() => {
+                    btn.disabled = false; btn.innerHTML = `Execute Autonomous Audit`;
+                    statusLabel.innerText = "System Ready"; statusLabel.classList.replace('text-cyan-400', 'text-slate-300');
+                    placeholder.classList.remove('scanning-active');
+                }, 800);
+            }
+        }
+
+        // ═══ DASHBOARD ═══
+        async function loadDashboard() {
+            const gate = document.getElementById('overview-login-gate');
+            if (!isLoggedIn()) { gate.style.display = 'flex'; return; }
+            gate.style.display = 'none';
+            try {
+                const res = await apiFetch('/dashboard/summary');
+                const d = res.data;
+                document.getElementById('stat-total').textContent = d.totalScans;
+                document.getElementById('stat-active').textContent = d.activeScans;
+                document.getElementById('stat-resolved').textContent = d.resolvedScans;
+                document.getElementById('stat-avg').textContent = d.averageScore;
+                // Lifecycle breakdown
+                ['safe', 'warning', 'vulnerable', 'critical', 'resolved'].forEach(s => {
+                    const el = document.getElementById('lb-' + s);
+                    if (el) el.textContent = d.statusBreakdown[s.charAt(0).toUpperCase() + s.slice(1)] || 0;
+                });
+                // Severity breakdown
+                ['critical', 'high', 'medium', 'low'].forEach(s => {
+                    const el = document.getElementById('sb-' + s);
+                    if (el) el.textContent = d.severityBreakdown[s.charAt(0).toUpperCase() + s.slice(1)] || 0;
+                });
+                // Draw chart from recent scans
+                drawOverviewChart(d.recentScans || []);
+            } catch (e) { console.error('Dashboard error:', e); }
+        }
+
+        function drawOverviewChart(scans) {
+            const canvas = document.getElementById('overview-chart');
+            if (!canvas) return;
+            const ctx2 = canvas.getContext('2d');
+            const parent = canvas.parentElement;
+            const W = parent.clientWidth - 48;
+            const H = 220;
+            canvas.width = W;
+            canvas.height = H;
+            canvas.style.width = W + 'px';
+            canvas.style.height = H + 'px';
+            ctx2.clearRect(0, 0, W, H);
+
+            const pad = { l: 70, r: 15, t: 20, b: 35 };
+            const cW = W - pad.l - pad.r, cH = H - pad.t - pad.b;
+
+            if (scans.length === 0) {
+                ctx2.fillStyle = '#475569';
+                ctx2.font = '12px "JetBrains Mono", monospace';
+                ctx2.textAlign = 'center';
+                ctx2.fillText('No scan data yet', W / 2, H / 2);
+                return;
+            }
+
+            const pts = scans.slice().reverse().map((s, i) => ({
+                x: pad.l + (i / Math.max(scans.length - 1, 1)) * cW,
+                y: pad.t + cH - (s.riskScore / 100) * cH,
+                score: s.riskScore,
+                label: (s.filePath || '').split(/[/\\]/).pop() || '#' + (i + 1)
+            }));
+
+            // Y-axis: only show 0 and 100
+            ctx2.fillStyle = '#475569';
+            ctx2.font = '10px "JetBrains Mono", monospace';
+            ctx2.textAlign = 'right';
+            ctx2.fillText('100', pad.l - 10, pad.t + 4);
+            ctx2.fillText('0', pad.l - 10, pad.t + cH + 4);
+
+            // Threshold lines with labels (no overlapping numbers)
+            [
+                { y: 75, color: '#FF1744', label: 'Critical (75)' },
+                { y: 50, color: '#FF6D00', label: 'High (50)' },
+                { y: 25, color: '#FFD600', label: 'Medium (25)' }
+            ].forEach(t => {
+                const yPos = pad.t + cH - (t.y / 100) * cH;
+                ctx2.save();
+                ctx2.strokeStyle = t.color + '35';
+                ctx2.lineWidth = 1;
+                ctx2.setLineDash([4, 4]);
+                ctx2.beginPath();
+                ctx2.moveTo(pad.l, yPos);
+                ctx2.lineTo(W - pad.r, yPos);
+                ctx2.stroke();
+                ctx2.restore();
+                ctx2.fillStyle = t.color + 'bb';
+                ctx2.font = '9px "JetBrains Mono", monospace';
+                ctx2.textAlign = 'right';
+                ctx2.fillText(t.label, pad.l - 10, yPos + 3);
+            });
+
+            // Gradient fill
+            if (pts.length > 1) {
+                const grad = ctx2.createLinearGradient(0, pad.t, 0, pad.t + cH);
+                grad.addColorStop(0, 'rgba(0, 240, 255, 0.1)');
+                grad.addColorStop(1, 'rgba(0, 240, 255, 0.0)');
+                ctx2.beginPath();
+                ctx2.moveTo(pts[0].x, pad.t + cH);
+                pts.forEach(p => ctx2.lineTo(p.x, p.y));
+                ctx2.lineTo(pts[pts.length - 1].x, pad.t + cH);
+                ctx2.closePath();
+                ctx2.fillStyle = grad;
+                ctx2.fill();
+            }
+
+            // Line
+            ctx2.beginPath();
+            ctx2.strokeStyle = '#00f0ff';
+            ctx2.lineWidth = 2;
+            ctx2.lineJoin = 'round';
+            ctx2.lineCap = 'round';
+            pts.forEach((p, i) => { i === 0 ? ctx2.moveTo(p.x, p.y) : ctx2.lineTo(p.x, p.y); });
+            ctx2.stroke();
+
+            // Data dots
+            pts.forEach(p => {
+                ctx2.beginPath();
+                ctx2.arc(p.x, p.y, 4, 0, Math.PI * 2);
+                ctx2.fillStyle = '#0a0c14';
+                ctx2.fill();
+                ctx2.strokeStyle = '#00f0ff';
+                ctx2.lineWidth = 2;
+                ctx2.stroke();
+            });
+
+            // X labels
+            ctx2.fillStyle = '#475569';
+            ctx2.font = '8px "JetBrains Mono", monospace';
+            ctx2.textAlign = 'center';
+            const step = Math.max(1, Math.floor(pts.length / 6));
+            pts.forEach((p, i) => {
+                if (i % step === 0 || i === pts.length - 1) {
+                    const lbl = p.label.length > 12 ? p.label.substring(0, 10) + '..' : p.label;
+                    ctx2.fillText(lbl, p.x, H - 10);
+                }
+            });
+        }
+
+        // ═══ SCAN HISTORY ═══
+        async function loadScans(page) {
+            if (!isLoggedIn()) { document.getElementById('scans-tbody').innerHTML = '<tr><td colspan="6" class="text-center py-8"><i class="fas fa-lock text-slate-600 mr-2"></i><button onclick="showAuthModal()" class="btn-sm btn-cyan">Login to view history</button></td></tr>'; return; }
+            scanPage = page;
+            try {
+                const res = await apiFetch(`/scans?page=${page}&per_page=15`);
+                const scans = res.data || [];
+                const pag = res.pagination || {};
+                document.getElementById('scan-page-info').textContent = `Page ${pag.page || 1} of ${pag.totalPages || 1}`;
+
+                if (scans.length === 0) {
+                    document.getElementById('scans-tbody').innerHTML = '<tr><td colspan="6" class="text-center text-slate-600 py-8">No scans found.</td></tr>';
+                    return;
+                }
+
+                document.getElementById('scans-tbody').innerHTML = scans.map(s => `
+                    <tr>
+                        <td class="font-medium text-white">${(s.filePath || '').split(/[/\\\\]/).pop()}</td>
+                        <td><span class="text-[10px] mono-font text-cyan-400 bg-cyan-500/10 px-2 py-0.5 rounded">${(s.language || '').toUpperCase()}</span></td>
+                        <td><span class="font-bold ${s.riskScore >= 75 ? 'text-red-400' : s.riskScore >= 50 ? 'text-orange-400' : s.riskScore >= 25 ? 'text-yellow-400' : 'text-green-400'}">${s.riskScore}</span></td>
+                        <td><span class="badge ${statusBadgeClass(s.lifecycleStatus)}">${s.lifecycleStatus}</span></td>
+                        <td class="text-xs text-slate-500">${new Date(s.createdAt).toLocaleDateString()}</td>
+                        <td><button onclick="viewScanDetail('${s.scanId}')" class="btn-sm btn-cyan">View</button></td>
+                    </tr>
+                `).join('');
+            } catch (e) { console.error('Scan history error:', e); }
+        }
+
+        // ═══ SCAN DETAIL MODAL ═══
+        async function viewScanDetail(scanId) {
+            document.getElementById('scan-detail-modal').style.display = 'flex';
+            const content = document.getElementById('scan-detail-content');
+            content.innerHTML = '<div class="text-center py-8"><i class="fas fa-circle-notch fa-spin text-cyan-400 text-2xl"></i></div>';
+            try {
+                const [scanRes, chartRes, lifecycleRes] = await Promise.all([
+                    apiFetch(`/scans/${scanId}`),
+                    apiFetch(`/scans/${scanId}/chart-data`),
+                    apiFetch(`/scans/${scanId}/lifecycle`)
+                ]);
+                const scan = scanRes.data;
+                const chart = chartRes.data;
+                const lifecycle = lifecycleRes.data || [];
+
+                const vulnRows = (scan.vulnerabilities || []).map(v => `
+                    <tr>
+                        <td class="text-xs">${v.category}</td>
+                        <td><span class="badge ${v.severity === 'Critical' ? 'badge-critical' : v.severity === 'High' ? 'badge-vulnerable' : v.severity === 'Medium' ? 'badge-warning' : 'badge-safe'}">${v.severity}</span></td>
+                        <td class="text-xs">${v.lineNumber}</td>
+                        <td><span class="badge ${v.status === 'open' ? 'badge-critical' : v.status === 'fixed' ? 'badge-resolved' : 'badge-warning'}">${v.status}</span></td>
+                        <td>${v.status === 'open' ? `<button onclick="fixVuln('${v.id}','${scanId}')" class="btn-sm btn-green text-[10px]">Mark Fixed</button>` : ''}</td>
+                    </tr>
+                `).join('');
+
+                const historyRows = lifecycle.map(h => `
+                    <div class="flex items-center gap-3 py-2 border-b border-white/5">
+                        <span class="badge ${statusBadgeClass(h.lifecycleStatus)}">${h.lifecycleStatus}</span>
+                        <span class="text-xs text-white font-bold">Score: ${h.score}</span>
+                        <span class="text-[10px] text-slate-500 ml-auto">${h.reason || ''}</span>
+                    </div>
+                `).join('');
+
+                content.innerHTML = `
+                    <div class="grid grid-cols-3 gap-3 mb-4">
+                        <div class="stat-card"><div class="stat-val text-lg ${scan.riskScore >= 75 ? 'text-red-400' : scan.riskScore >= 50 ? 'text-orange-400' : 'text-cyan-400'}">${scan.riskScore}</div><div class="stat-label">Score</div></div>
+                        <div class="stat-card"><div class="stat-val text-lg text-white">${scan.riskLevel}</div><div class="stat-label">Risk Level</div></div>
+                        <div class="stat-card"><div class="flex items-center gap-2"><span class="badge ${statusBadgeClass(scan.lifecycleStatus)} text-sm">${scan.lifecycleStatus}</span></div><div class="stat-label mt-2">Lifecycle</div></div>
+                    </div>
+                    <div class="mb-4 p-4 bg-black/30 rounded-xl border border-white/5">
+                        <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Score Progression</h4>
+                        <canvas id="detail-chart" height="140" style="width:100%;"></canvas>
+                    </div>
+                    ${scan.lifecycleStatus !== 'Resolved' ? `<div class="mb-4"><button onclick="resolveScan('${scanId}')" class="btn-sm btn-green w-full py-2"><i class="fas fa-check-circle mr-2"></i>Resolve Scan (Reset Score to 0)</button></div>` : ''}
+                    <div class="mb-4">
+                        <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Lifecycle History</h4>
+                        <div class="max-h-32 overflow-y-auto">${historyRows || '<p class="text-xs text-slate-600">No history</p>'}</div>
+                    </div>
+                    <div>
+                        <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Vulnerabilities (${(scan.vulnerabilities || []).length})</h4>
+                        <div class="overflow-x-auto max-h-48 overflow-y-auto">
+                            <table class="data-table"><thead><tr><th>Category</th><th>Severity</th><th>Line</th><th>Status</th><th>Action</th></tr></thead>
+                            <tbody>${vulnRows || '<tr><td colspan="5" class="text-center text-slate-600">No vulnerabilities</td></tr>'}</tbody></table>
+                        </div>
+                    </div>
+                `;
+
+                // Draw mini chart
+                setTimeout(() => drawDetailChart(chart), 100);
+            } catch (e) { content.innerHTML = `<p class="text-red-400 text-center">${e.message}</p>`; }
+        }
+
+        function drawDetailChart(chartData) {
+            const canvas = document.getElementById('detail-chart');
+            if (!canvas) return;
+            const ctx3 = canvas.getContext('2d');
+            const dpr = window.devicePixelRatio || 1;
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width * dpr; canvas.height = 140 * dpr;
+            canvas.style.width = rect.width + 'px'; canvas.style.height = '140px';
+            ctx3.setTransform(dpr, 0, 0, dpr, 0, 0);
+            const W = rect.width, H = 140, pad = { l: 30, r: 10, t: 10, b: 20 };
+            const cW = W - pad.l - pad.r, cH = H - pad.t - pad.b;
+            ctx3.clearRect(0, 0, W, H);
+
+            const spots = (chartData && chartData.lineChart && chartData.lineChart.spots) || [];
+            if (!spots.length) { ctx3.fillStyle = '#334155'; ctx3.font = '11px JetBrains Mono'; ctx3.textAlign = 'center'; ctx3.fillText('No data', W / 2, H / 2); return; }
+
+            const pts = spots.map((s, i) => ({ x: pad.l + (i / Math.max(spots.length - 1, 1)) * cW, y: pad.t + cH - (s.y / 100) * cH, score: s.y, status: s.status }));
+
+            // Thresholds
+            [75, 50, 25].forEach(v => { const yPos = pad.t + cH - (v / 100) * cH; ctx3.strokeStyle = 'rgba(255,255,255,0.06)'; ctx3.setLineDash([3, 3]); ctx3.beginPath(); ctx3.moveTo(pad.l, yPos); ctx3.lineTo(W - pad.r, yPos); ctx3.stroke(); ctx3.setLineDash([]); });
+
+            // Gradient fill
+            if (pts.length > 1) { const g = ctx3.createLinearGradient(0, pad.t, 0, pad.t + cH); g.addColorStop(0, 'rgba(0,240,255,0.12)'); g.addColorStop(1, 'rgba(0,240,255,0)'); ctx3.beginPath(); ctx3.moveTo(pts[0].x, pad.t + cH); pts.forEach(p => ctx3.lineTo(p.x, p.y)); ctx3.lineTo(pts[pts.length - 1].x, pad.t + cH); ctx3.closePath(); ctx3.fillStyle = g; ctx3.fill(); }
+
+            // Line
+            ctx3.beginPath(); ctx3.strokeStyle = '#00f0ff'; ctx3.lineWidth = 2;
+            pts.forEach((p, i) => { if (i === 0) ctx3.moveTo(p.x, p.y); else ctx3.lineTo(p.x, p.y); }); ctx3.stroke();
+
+            // Points
+            pts.forEach(p => { ctx3.beginPath(); ctx3.arc(p.x, p.y, 3, 0, Math.PI * 2); ctx3.fillStyle = p.score === 0 ? '#3b82f6' : p.score >= 75 ? '#ef4444' : p.score >= 50 ? '#f97316' : '#00f0ff'; ctx3.fill(); });
+        }
+
+        function closeScanDetail() { document.getElementById('scan-detail-modal').style.display = 'none'; }
+
+        async function resolveScan(scanId) {
+            if (!confirm('Resolve this scan? Score will be reset to 0.')) return;
+            try {
+                await apiFetch(`/scans/${scanId}/resolve`, { method: 'PUT' });
+                closeScanDetail(); loadScans(scanPage);
+            } catch (e) { alert(e.message); }
+        }
+
+        async function fixVuln(vulnId, scanId) {
+            try {
+                await apiFetch(`/vulnerabilities/${vulnId}/status`, { method: 'PUT', body: { status: 'fixed' } });
+                viewScanDetail(scanId); // refresh
+            } catch (e) { alert(e.message); }
+        }
+
+        // ═══ AUDIT LOGS ═══
+        async function loadAuditLogs(page) {
+            if (!isLoggedIn()) { document.getElementById('audit-tbody').innerHTML = '<tr><td colspan="6" class="text-center py-8"><i class="fas fa-lock text-slate-600 mr-2"></i><button onclick="showAuthModal()" class="btn-sm btn-cyan">Login to view audit logs</button></td></tr>'; return; }
+            auditPage = page;
+            try {
+                const res = await apiFetch(`/audit-logs?page=${page}&per_page=20`);
+                const logs = res.data || [];
+                const pag = res.pagination || {};
+                document.getElementById('audit-page-info').textContent = `Page ${pag.page || 1} of ${pag.totalPages || 1}`;
+
+                if (!logs.length) { document.getElementById('audit-tbody').innerHTML = '<tr><td colspan="6" class="text-center text-slate-600 py-8">No audit logs yet. Perform scans to generate logs.</td></tr>'; return; }
+
+                document.getElementById('audit-tbody').innerHTML = logs.map(l => {
+                    // Score display
+                    let scoreHtml = '-';
+                    if (l.action === 'scan_created' && l.newScore != null) {
+                        scoreHtml = '<span class="text-cyan-400">New: ' + l.newScore + '</span>';
+                    } else if (l.oldScore != null && l.newScore != null) {
+                        scoreHtml = l.oldScore + ' \u2192 ' + l.newScore;
+                    } else if (l.newScore != null) {
+                        scoreHtml = '\u2192 ' + l.newScore;
+                    }
+
+                    // Status display
+                    let statusHtml = '-';
+                    if (l.action === 'scan_created' && l.newStatus) {
+                        statusHtml = '<span class="badge ' + statusBadgeClass(l.newStatus) + '">' + l.newStatus + '</span>';
+                    } else if (l.oldStatus && l.newStatus) {
+                        statusHtml = '<span class="badge ' + statusBadgeClass(l.oldStatus) + '">' + l.oldStatus + '</span> \u2192 <span class="badge ' + statusBadgeClass(l.newStatus) + '">' + l.newStatus + '</span>';
+                    } else if (l.newStatus) {
+                        statusHtml = '<span class="badge ' + statusBadgeClass(l.newStatus) + '">' + l.newStatus + '</span>';
+                    }
+
+                    // Action badge color
+                    let actionClass = 'bg-cyan-500/10 text-cyan-400';
+                    if (l.action === 'scan_created') actionClass = 'bg-blue-500/10 text-blue-400';
+                    else if (l.action === 'lifecycle_transition') actionClass = 'bg-purple-500/10 text-purple-400';
+                    else if (l.action === 'manual_score_override') actionClass = 'bg-orange-500/10 text-orange-400';
+                    else if (l.action === 'scan_deleted') actionClass = 'bg-red-500/10 text-red-400';
+
+                    return `<tr>
+                        <td><span class="text-[10px] mono-font px-2 py-0.5 rounded ${actionClass}">${l.action.replace(/_/g, ' ')}</span></td>
+                        <td class="text-xs">${l.performedBy ? l.performedBy.substring(0, 8) + '...' : 'system'}</td>
+                        <td class="mono-font text-xs">${scoreHtml}</td>
+                        <td>${statusHtml}</td>
+                        <td class="text-[10px] text-slate-500 max-w-[200px] truncate">${l.details || '-'}</td>
+                        <td class="text-[10px] text-slate-500">${l.timestamp ? new Date(l.timestamp).toLocaleString() : '-'}</td>
+                    </tr>`;
+                }).join('');
+            } catch (e) {
+                console.error('Audit logs error:', e);
+                document.getElementById('audit-tbody').innerHTML = '<tr><td colspan="6" class="text-center text-red-400 py-8"><i class="fas fa-exclamation-triangle mr-2"></i>' + e.message + '</td></tr>';
+            }
+        }
+
+        // ═══ INIT ═══
+        updateUserUI();
+    </script>
+</body>
+
+</html>
